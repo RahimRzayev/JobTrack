@@ -1,0 +1,389 @@
+Watching for file changes with StatReloader
+[19/Mar/2026 13:53:04] "OPTIONS /api/auth/login/ HTTP/1.1" 200 0
+[19/Mar/2026 13:53:04] "POST /api/auth/login/ HTTP/1.1" 200 626
+[19/Mar/2026 13:53:05] "OPTIONS /api/analytics/dashboard/ HTTP/1.1" 200 0
+[19/Mar/2026 13:53:05] "OPTIONS /api/analytics/dashboard/ HTTP/1.1" 200 0
+[19/Mar/2026 13:53:05] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 13:53:05] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 13:53:16] "OPTIONS /api/jobs/ HTTP/1.1" 200 0
+[19/Mar/2026 13:53:16] "OPTIONS /api/jobs/ HTTP/1.1" 200 0
+[19/Mar/2026 13:53:16] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 13:53:16] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:09] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:09] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:22] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:22] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:33] "OPTIONS /api/jobs/?status=wishlist HTTP/1.1" 200 0
+[19/Mar/2026 14:03:33] "GET /api/jobs/?status=wishlist HTTP/1.1" 200 493
+[19/Mar/2026 14:03:34] "OPTIONS /api/jobs/?status=applied HTTP/1.1" 200 0
+[19/Mar/2026 14:03:34] "GET /api/jobs/?status=applied HTTP/1.1" 200 532
+[19/Mar/2026 14:03:35] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:46] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:46] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:50] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:50] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:51] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:51] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:03:57] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:03:57] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:04:01] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:04:01] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:04:26] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:04:26] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:04:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:04:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:05:09] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:05:09] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:05:31] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:05:31] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:05:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:05:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:05:32] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:05:32] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:06:54] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:06:54] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:06:55] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:06:55] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:07:06] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:07:06] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:07:51] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:07:51] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:11:41] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:11:41] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:15:13] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:15:13] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:15:22] "OPTIONS /api/auth/logout/ HTTP/1.1" 200 0
+[19/Mar/2026 14:15:22] "POST /api/auth/logout/ HTTP/1.1" 200 37
+[19/Mar/2026 14:15:46] "POST /api/auth/login/ HTTP/1.1" 200 626
+[19/Mar/2026 14:15:46] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:15:46] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:15:50] "POST /api/auth/logout/ HTTP/1.1" 200 37
+[19/Mar/2026 14:16:22] "OPTIONS /api/auth/register/ HTTP/1.1" 200 0
+[19/Mar/2026 14:16:23] "POST /api/auth/register/ HTTP/1.1" 201 625
+[19/Mar/2026 14:16:23] "GET /api/analytics/dashboard/ HTTP/1.1" 200 85
+[19/Mar/2026 14:16:23] "GET /api/analytics/dashboard/ HTTP/1.1" 200 85
+[19/Mar/2026 14:16:38] "GET /api/jobs/ HTTP/1.1" 200 52
+[19/Mar/2026 14:16:38] "GET /api/jobs/ HTTP/1.1" 200 52
+[19/Mar/2026 14:16:39] "GET /api/analytics/dashboard/ HTTP/1.1" 200 85
+[19/Mar/2026 14:16:39] "GET /api/analytics/dashboard/ HTTP/1.1" 200 85
+[19/Mar/2026 14:16:46] "GET /api/jobs/ HTTP/1.1" 200 52
+[19/Mar/2026 14:16:46] "GET /api/jobs/ HTTP/1.1" 200 52
+[19/Mar/2026 14:17:43] "POST /api/jobs/ HTTP/1.1" 201 433
+[19/Mar/2026 14:17:43] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:18:06] "POST /api/auth/logout/ HTTP/1.1" 200 37
+[19/Mar/2026 14:18:26] "POST /api/auth/login/ HTTP/1.1" 200 626
+[19/Mar/2026 14:18:26] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:18:26] "GET /api/analytics/dashboard/ HTTP/1.1" 200 195
+[19/Mar/2026 14:18:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:18:32] "GET /api/jobs/ HTTP/1.1" 200 2351
+[19/Mar/2026 14:18:44] "POST /api/auth/logout/ HTTP/1.1" 200 37
+[19/Mar/2026 14:18:56] "POST /api/auth/login/ HTTP/1.1" 200 625
+[19/Mar/2026 14:18:56] "GET /api/analytics/dashboard/ HTTP/1.1" 200 142
+[19/Mar/2026 14:18:56] "GET /api/analytics/dashboard/ HTTP/1.1" 200 142
+[19/Mar/2026 14:19:00] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:19:00] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:22:10] "GET /api/analytics/dashboard/ HTTP/1.1" 200 142
+[19/Mar/2026 14:22:10] "GET /api/analytics/dashboard/ HTTP/1.1" 200 142
+[19/Mar/2026 14:22:13] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:22:13] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:23:04] "OPTIONS /api/ai/match-score/ HTTP/1.1" 200 0
+Match score error: Google Cloud AI Platform SDK is not installed. Install it with: pip install google-cloud-aiplatform
+Service Unavailable: /api/ai/match-score/
+[19/Mar/2026 14:23:04] "POST /api/ai/match-score/ HTTP/1.1" 503 93
+[19/Mar/2026 14:23:17] "OPTIONS /api/ai/cover-letter/ HTTP/1.1" 200 0
+Cover letter error: Google Cloud AI Platform SDK is not installed. Install it with: pip install google-cloud-aiplatform
+Service Unavailable: /api/ai/cover-letter/
+[19/Mar/2026 14:23:17] "POST /api/ai/cover-letter/ HTTP/1.1" 503 95
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 13:52:10
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/apps.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:27:50
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:27:53
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+[19/Mar/2026 14:29:00] "OPTIONS /api/auth/me/ HTTP/1.1" 200 0
+[19/Mar/2026 14:29:00] "GET /api/auth/me/ HTTP/1.1" 200 132
+[19/Mar/2026 14:29:00] "GET /api/jobs/ HTTP/1.1" 200 485
+[19/Mar/2026 14:29:00] "GET /api/jobs/ HTTP/1.1" 200 485
+/Users/rahimrzayev/Downloads/JobTrack/backend/ai_services/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:28:29
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/ai_services/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:30:56
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+[19/Mar/2026 14:31:32] "GET /api/jobs/ HTTP/1.1" 200 485
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:30:59
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:31:56
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:31:59
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:32:31
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/config/settings.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:32:36
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/ai_services/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:53:09
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/jobs/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:53:42
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/config/settings.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 14:59:26
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:48:38
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/config/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:48:40
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:49:02
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/jobs/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:49:04
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/ai_services/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:49:35
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:49:38
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:58:38
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/serializers.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:58:55
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/accounts/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:59:10
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/ai_services/scraper.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 17:59:24
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
+/Users/rahimrzayev/Downloads/JobTrack/backend/jobs/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+March 19, 2026 - 18:06:41
+Django version 6.0.3, using settings 'config.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/
+Watching for file changes with StatReloader
