@@ -44,3 +44,9 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Development documentation
+AI_PROMPT.md
+SKILL.md
+TASKS.md
+CODE_REVIEW_REPORT.md
