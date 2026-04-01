@@ -4,6 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, get_user_model
+import random
+from django.core.cache import cache
+from django.core.mail import send_mail
 
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
@@ -20,15 +23,24 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
+        
+        # Start verification flow instead of instant login
+        code = str(random.randint(100000, 999999))
+        cache.set(f"email_verify_{user.email}", code, timeout=3600)
+
+        send_mail(
+            'Verify your JobTrack Account',
+            f'Your verification code is: {code}\n\nThis code will expire in 1 hour.',
+            'noreply@jobtrack.ai',
+            [user.email],
+            fail_silently=False,
+        )
+
         return Response({
             'user': UserSerializer(user).data,
-            'tokens': {
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-            }
+            'message': 'Please verify your email to continue.',
+            'requires_verification': True
         }, status=status.HTTP_201_CREATED)
-
 
 class LoginView(APIView):
     """Log in a user with email and password, return JWT tokens."""
@@ -47,6 +59,23 @@ class LoginView(APIView):
                 {'detail': 'Invalid email or password.'},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+        if not getattr(user, 'is_verified', False):
+            # Regenerate code
+            code = str(random.randint(100000, 999999))
+            cache.set(f"email_verify_{user.email}", code, timeout=3600)
+            send_mail(
+                'Verify your JobTrack Account',
+                f'Your new verification code is: {code}\n\nThis code will expire in 1 hour.',
+                'noreply@jobtrack.ai',
+                [user.email],
+                fail_silently=False,
+            )
+            return Response(
+                {'detail': 'Please verify your email first.', 'email_unverified': True},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         refresh = RefreshToken.for_user(user)
         return Response({
             'user': UserSerializer(user).data,
@@ -55,6 +84,39 @@ class LoginView(APIView):
                 'refresh': str(refresh),
             }
         })
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        code = request.data.get('code')
+
+        if not email or not code:
+            return Response({'detail': 'Email and code are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        cached_code = cache.get(f"email_verify_{email}")
+
+        if not cached_code or str(cached_code) != str(code):
+            return Response({'detail': 'Invalid or expired verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email=email).first()
+        if not user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.is_verified = True
+        user.save()
+        cache.delete(f"email_verify_{email}")
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }
+        })
+
 
 
 class LogoutView(APIView):
