@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { JobApplication } from '../types';
 import { jobsApi } from '../services/jobsApi';
 import toast from 'react-hot-toast';
@@ -14,6 +15,20 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
   const [interviewDate, setInterviewDate] = useState('');
   const [interviewTime, setInterviewTime] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && job?.interview_datetime) {
+      const dateObj = new Date(job.interview_datetime);
+      setInterviewDate(dateObj.toISOString().split('T')[0]);
+      
+      const hours = String(dateObj.getHours()).padStart(2, '0');
+      const mins = String(dateObj.getMinutes()).padStart(2, '0');
+      setInterviewTime(`${hours}:${mins}`);
+    } else if (isOpen) {
+      setInterviewDate('');
+      setInterviewTime('');
+    }
+  }, [isOpen, job]);
 
   if (!isOpen || !job) return null;
 
@@ -51,7 +66,7 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
@@ -122,6 +137,7 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

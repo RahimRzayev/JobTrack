@@ -14,75 +14,61 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const response = await api.post('/auth/login/', { email, password });
       login(response.data.tokens, response.data.user);
       toast.success('Successfully logged in!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Login failed. Please try again.');
+      if (error.response?.data?.email_unverified) {
+        toast.error(error.response.data.detail || 'Email not verified');
+        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else {
+        toast.error(error.response?.data?.detail || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to JobTrack AI
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
-              create a new account
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <div className="w-full max-w-md animate-fade-in-up">
+        {/* Logo */}
+        <Link to="/" className="flex items-center justify-center gap-2.5 mb-8 hover:opacity-90 transition-opacity">
+          <span className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white"
+            style={{ backgroundColor: 'var(--color-coral)' }}>JT</span>
+          <span className="text-2xl font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack AI</span>
+        </Link>
+        
+        <div className="studio-card p-8">
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-ink)' }}>Welcome back</h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--color-slate)' }}>
+            Sign in to continue, or{' '}
+            <Link to="/register" className="font-semibold transition-colors" style={{ color: 'var(--color-coral)' }}>
+              create an account
             </Link>
           </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email address</label>
-              <input
-                type="email"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-shadow"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Email</label>
+              <input type="email" required className="w-full px-3 py-2.5 text-sm" placeholder="you@example.com"
+                value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-shadow"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Password</label>
+              <input type="password" required className="w-full px-3 py-2.5 text-sm" placeholder="••••••••"
+                value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2.5 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 transition-colors shadow-sm"
-            >
+            <button type="submit" disabled={loading} className="studio-btn primary w-full py-2.5 mt-2">
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
-          </div>
-          
-          <div className="text-center mt-4">
-            <p className="text-xs text-gray-500">
-              Demo account: demo@jobtrack.ai / demo1234
+            <p className="text-center text-xs mt-3" style={{ color: 'var(--color-stone)' }}>
+              Demo: demo@jobtrack.ai / demo1234
             </p>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

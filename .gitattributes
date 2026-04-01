@@ -1,0 +1,16 @@
+# Normalize line endings to LF on all platforms
+# This prevents CRLF/LF conflicts between Windows and macOS teammates
+
+* text=auto eol=lf
+
+# Explicitly mark binary files to prevent corruption
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.db binary
+*.sqlite3 binary

@@ -51,13 +51,4 @@ class UserProfile(models.Model):
         return f"{self.user.email} Profile"
 
 
-# --- Signal: auto-create a UserProfile whenever a User is created ---
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    """Ensure every User always has an associated UserProfile."""
-    if created:
-        UserProfile.objects.get_or_create(user=instance)

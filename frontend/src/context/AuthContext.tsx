@@ -78,3 +78,6 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Alias for use in App.tsx where we need auth state outside ProtectedRoute
+export const useAuthContext = useAuth;

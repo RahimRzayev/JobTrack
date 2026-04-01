@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { JobApplication } from '../types';
 import { jobsApi } from '../services/jobsApi';
 import { useAuth } from '../context/AuthContext';
@@ -69,7 +70,7 @@ export default function CoverLetterModal({ isOpen, onClose, job }: CoverLetterMo
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[60] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
@@ -206,6 +207,7 @@ export default function CoverLetterModal({ isOpen, onClose, job }: CoverLetterMo
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

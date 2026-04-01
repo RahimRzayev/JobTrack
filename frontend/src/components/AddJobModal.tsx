@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { JobApplication } from '../types';
 import { jobsApi } from '../services/jobsApi';
 import toast from 'react-hot-toast';
@@ -126,7 +127,7 @@ export default function AddJobModal({ isOpen, onClose, onSubmit }: AddJobModalPr
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
@@ -280,6 +281,7 @@ export default function AddJobModal({ isOpen, onClose, onSubmit }: AddJobModalPr
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
