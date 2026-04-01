@@ -42,6 +42,7 @@ class RegisterView(generics.CreateAPIView):
             'requires_verification': True
         }, status=status.HTTP_201_CREATED)
 
+
 class LoginView(APIView):
     """Log in a user with email and password, return JWT tokens."""
 
@@ -63,11 +64,11 @@ class LoginView(APIView):
         if not getattr(user, 'is_verified', False):
             # Regenerate code
             code = str(random.randint(100000, 999999))
-<<<<<<< HEAD
             cache.set(f"email_verify_{user.email.lower()}", code, timeout=3600)
-=======
-            cache.set(f"email_verify_{user.email}", code, timeout=3600)
-            cache.set(f"email_verify_{user.email.lower()}", code, timeout=3600)
+            send_mail(
+                'Verify your JobTrack Account',
+                f'Your new verification code is: {code}\n\nThis code will expire in 1 hour.',
+                'noreply@jobtrack.ai',
                 [user.email],
                 fail_silently=False,
             )
@@ -85,6 +86,7 @@ class LoginView(APIView):
             }
         })
 
+
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
@@ -95,10 +97,6 @@ class VerifyEmailView(APIView):
         if not email or not code:
             return Response({'detail': 'Email and code are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-<<<<<<< HEAD
-        user_email = email.lower()
-        cached_code = cache.get(f"email_verify_{user_email}")
-        
         user_email = email.lower()
         cached_code = cache.get(f"email_verify_{user_email}")
 
@@ -112,12 +110,15 @@ class VerifyEmailView(APIView):
         user.is_verified = True
         user.save()
         cache.delete(f"email_verify_{user_email}")
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserSerializer(user).data,
             'tokens': {
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
             }
         })
-
 
 
 class LogoutView(APIView):
