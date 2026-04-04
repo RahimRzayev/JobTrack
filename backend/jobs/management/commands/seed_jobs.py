@@ -16,6 +16,7 @@ class Command(BaseCommand):
             defaults={
                 'first_name': 'Demo',
                 'last_name': 'User',
+                'is_verified': True,
             }
         )
         if created:

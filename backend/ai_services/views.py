@@ -1,7 +1,6 @@
 import json
 import logging
 
-from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -101,7 +100,9 @@ class CoverLetterView(APIView):
         serializer = CoverLetterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        cv_pdf = getattr(request.user.profile, 'cv_pdf', None)
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        cv_pdf = profile.cv_pdf if profile.cv_pdf else None
         if not cv_pdf:
             return Response({'error': 'No CV PDF found in your profile. Please upload one first.'}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -160,63 +161,4 @@ INSTRUCTIONS:
             )
 
 
-class ScrapeJobView(APIView):
-    """
-    POST /api/ai/scrape-job/
-    Scrape a URL and extract job details.
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        from .serializers import ScrapeJobUrlSerializer
-        from .scraper import scrape_job_url
-
-        serializer = ScrapeJobUrlSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        url = serializer.validated_data['url']
-
-        try:
-            # Step 1: Scrape text
-            website_text = scrape_job_url(url)
-
-            # Step 2: Extract info via Gemini
-            prompt = f"""You are an expert AI assistant that extracts structured job posting data.
-
-I have provided text scraped from a job posting webpage below. Analyze it and extract the Company Name, Position Title, Location, and Application Deadline (if explicitly stated or implicitly understood).
-
-SCRAPED TEXT:
-{website_text}
-
-Respond with ONLY valid JSON in this exact format (no markdown, no extra text):
-{{
-    "company": "<Extracted company name, or empty string if not found>",
-    "position": "<Extracted position/role title, or empty string if not found>",
-    "location": "<Extracted location (City, State/Country), or Remote, or empty string if not found>",
-    "deadline": "<Extracted deadline in YYYY-MM-DD format if possible, otherwise exact text, or empty string if not found>"
-}}"""
-
-            response_text = call_gemini(prompt)
-            
-            # Clean response — handle possible markdown code blocks
-            cleaned = response_text.strip()
-            if cleaned.startswith('```'):
-                cleaned = cleaned.split('\n', 1)[1]
-                cleaned = cleaned.rsplit('```', 1)[0]
-            result = json.loads(cleaned)
-
-            return Response(result)
-
-        except json.JSONDecodeError:
-            return Response(
-                {'error': 'The AI returned an invalid response. Could not parse extracted data.'},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
-        except Exception as e:
-            logger.error(f"Job scrape error: {e}")
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 

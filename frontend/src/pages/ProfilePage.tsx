@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const cvPdfUrl = (user as any)?.cv_pdf;
+  const cvPdfUrl = user?.cv_pdf;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setSelectedFile(e.target.files[0]);

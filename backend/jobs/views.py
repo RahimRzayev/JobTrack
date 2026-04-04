@@ -46,39 +46,96 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         POST /api/jobs/{id}/match/
         Triggers AI analysis for a specific job card against a provided CV.
         """
+        import logging
+        import re
+        logger = logging.getLogger(__name__)
+
         job = self.get_object()
         
-        cv_pdf = getattr(request.user.profile, 'cv_pdf', None)
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        cv_pdf = profile.cv_pdf if profile.cv_pdf else None
         if not cv_pdf:
             return Response({'error': 'No CV PDF found in your profile. Please upload one first.'}, status=status.HTTP_400_BAD_REQUEST)
             
-        user_cv_text = extract_text_from_pdf(cv_pdf)
+        try:
+            user_cv_text = extract_text_from_pdf(cv_pdf)
+        except ValueError as e:
+            return Response({'error': f'Failed to read your CV PDF: {e}'}, status=status.HTTP_400_BAD_REQUEST)
         if not user_cv_text:
-            return Response({'error': 'Failed to extract text from your CV PDF or it is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Your CV PDF appears to be empty or unreadable. Please upload a different PDF.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        job_description = getattr(job, 'description', getattr(job, 'notes', ''))
+        # Clean CV text: collapse whitespace runs, remove stray special chars from PDF parsing
+        user_cv_text = re.sub(r'[ \t]+', ' ', user_cv_text)
+        user_cv_text = re.sub(r'\n{3,}', '\n\n', user_cv_text).strip()
+
+        # Build job description — try stored description, then scrape URL, then minimal fallback
+        job_description = (job.description or '').strip()
+
+        if not job_description and job.url:
+            try:
+                scraped = scrape_job_url(job.url)
+                if scraped and len(scraped) > 100:
+                    job_description = scraped
+                    job.description = scraped
+                    job.save(update_fields=['description'])
+                    logger.info(f"Auto-scraped description for job {job.id} from {job.url}")
+            except Exception as e:
+                logger.warning(f"Auto-scrape failed for job {job.id}: {e}")
+
         if not job_description:
-            # Fallback if there is no detailed description
-            job_description = f"{job.position} at {job.company}. Location: {job.location}"
+            job_description = f"Position: {job.position}\nCompany: {job.company}\nLocation: {job.location or 'Not specified'}"
+            if job.notes:
+                job_description += f"\nAdditional context: {job.notes}"
 
-        prompt = f"""You are an expert career advisor and resume analyst.
+        # Truncate inputs to keep within Gemini context limits
+        user_cv_text = user_cv_text[:15000]
+        job_description = job_description[:15000]
 
-Compare the following resume/CV against the job description and provide a match analysis.
+        prompt = f"""You are an expert technical recruiter and resume analyst performing a detailed candidate-job fit analysis.
 
-RESUME:
+CANDIDATE RESUME/CV:
+---
 {user_cv_text}
+---
 
 JOB DESCRIPTION:
+---
 {job_description}
+---
+
+ANALYSIS INSTRUCTIONS:
+Evaluate the candidate against the job requirements across these categories. For each category, assign a score from 0-100 based on how well the candidate matches.
+
+1. **Technical Skills** (weight: 35%) — Programming languages, frameworks, tools, platforms explicitly required.
+2. **Experience Level** (weight: 25%) — Years of experience, seniority, leadership scope.
+3. **Domain Knowledge** (weight: 20%) — Industry, product area, business domain relevance.
+4. **Education & Certifications** (weight: 10%) — Degree requirements, certifications, specific qualifications.
+5. **Soft Skills & Culture** (weight: 10%) — Communication, teamwork, values alignment if mentioned.
+
+SCORING GUIDELINES:
+- 85-100: Exceptional match — meets nearly all requirements, strong in most categories.
+- 70-84: Strong match — meets most core requirements with minor gaps.
+- 50-69: Moderate match — meets some requirements but has notable gaps.
+- 30-49: Weak match — meets few requirements, significant skill gaps.
+- 0-29: Poor match — fundamentally different profile from what's needed.
+
+Be strict and realistic. Do NOT inflate scores. A generic resume with no overlap should score below 30.
 
 Respond with ONLY valid JSON in this exact format (no markdown, no extra text):
 {{
-    "score": <integer 0-100>,
-    "missing_keywords": ["<keyword 1>", "<keyword 2>", "<keyword 3>"]
-}}
-
-The score should reflect how well the resume matches the job requirements contextually.
-Missing keywords are specific skills or requirements mentioned in the job description that the resume lacks."""
+    "score": <integer 0-100, the weighted overall score>,
+    "category_scores": {{
+        "technical_skills": <integer 0-100>,
+        "experience_level": <integer 0-100>,
+        "domain_knowledge": <integer 0-100>,
+        "education": <integer 0-100>,
+        "soft_skills": <integer 0-100>
+    }},
+    "matched_skills": ["<skill from CV that matches job requirement>", ...],
+    "missing_keywords": ["<required skill/qualification NOT found in CV>", ...],
+    "summary": "<2-3 sentence explanation of the overall fit>"
+}}"""
 
         try:
             response_text = call_gemini(prompt)
@@ -88,13 +145,15 @@ Missing keywords are specific skills or requirements mentioned in the job descri
                 cleaned = cleaned.rsplit('```', 1)[0]
             result = json.loads(cleaned)
 
-            if 'score' not in result or 'missing_keywords' not in result:
-                raise ValueError("Missing 'score' or 'missing_keywords' in AI response")
+            if 'score' not in result:
+                raise ValueError("Missing 'score' in AI response")
 
             result['score'] = max(0, min(100, int(result['score'])))
-            
-            # Optional: Overwrite and save match_score internally on the job object if desirable,
-            # though the user prompts didn't explicitly demand saving it inside the match endpoint.
+            result.setdefault('missing_keywords', [])
+            result.setdefault('matched_skills', [])
+            result.setdefault('category_scores', {})
+            result.setdefault('summary', '')
+
             job.match_score = result['score']
             job.save(update_fields=['match_score'])
 

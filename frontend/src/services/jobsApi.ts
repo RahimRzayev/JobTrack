@@ -5,8 +5,7 @@ export const jobsApi = {
   getAll: async (status?: string) => {
     const params = status ? { status } : {};
     const response = await api.get<any>('/jobs/', { params });
-    // DRF returns paginated object with 'results' array if pagination is enabled
-    // Settings.py defined PageNumberPagination but let's handle both
+    // Handle both paginated and non-paginated DRF responses
     return response.data.results ? (response.data.results as JobApplication[]) : (response.data as JobApplication[]);
   },
 

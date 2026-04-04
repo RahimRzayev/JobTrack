@@ -33,7 +33,7 @@ class RegisterView(generics.CreateAPIView):
             f'Your verification code is: {code}\n\nThis code will expire in 1 hour.',
             'noreply@jobtrack.ai',
             [user.email],
-            fail_silently=False,
+            fail_silently=True,
         )
 
         return Response({
@@ -70,7 +70,7 @@ class LoginView(APIView):
                 f'Your new verification code is: {code}\n\nThis code will expire in 1 hour.',
                 'noreply@jobtrack.ai',
                 [user.email],
-                fail_silently=False,
+                fail_silently=True,
             )
             return Response(
                 {'detail': 'Please verify your email first.', 'email_unverified': True},

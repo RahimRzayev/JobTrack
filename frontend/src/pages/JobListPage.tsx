@@ -43,7 +43,7 @@ export default function JobListPage() {
     if (!window.confirm('Are you sure you want to delete this job application?')) return;
     try {
       await jobsApi.delete(id);
-      setJobs(jobs.filter(job => job.id !== id));
+      setJobs(prev => prev.filter(job => job.id !== id));
       toast.success('Job application deleted');
     } catch (error) {
       toast.error('Failed to delete job application');
@@ -142,7 +142,7 @@ export default function JobListPage() {
                 job={job} 
                 onDelete={handleDeleteJob} 
                 onUpdate={(id, data) => {
-                  setJobs(jobs.map(j => j.id === id ? { ...j, ...data } : j));
+                  setJobs(prev => prev.map(j => j.id === id ? { ...j, ...data } : j));
                 }}
               />
             </div>

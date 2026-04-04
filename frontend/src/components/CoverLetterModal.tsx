@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { JobApplication } from '../types';
 import { jobsApi } from '../services/jobsApi';
@@ -19,9 +19,17 @@ export default function CoverLetterModal({ isOpen, onClose, job }: CoverLetterMo
   const [downloading, setDownloading] = useState(false);
   const [letter, setLetter] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      setLetter(null);
+      setLoading(false);
+      setDownloading(false);
+    }
+  }, [isOpen, job.id]);
+
   if (!isOpen) return null;
 
-  const cvPdfUrl = (user as any)?.cv_pdf;
+  const cvPdfUrl = user?.cv_pdf;
 
   const handleGenerate = async () => {
     if (!cvPdfUrl) {

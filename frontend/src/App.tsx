@@ -10,10 +10,10 @@ const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
-const DashboardPage = React.lazy(() => import('./pages/DashboardPage').catch(() => ({ default: () => <div>Dashboard placeholder</div> })));
-const JobListPage = React.lazy(() => import('./pages/JobListPage').catch(() => ({ default: () => <div>Job List placeholder</div> })));
-const KanbanPage = React.lazy(() => import('./pages/KanbanPage').catch(() => ({ default: () => <div>Kanban placeholder</div> })));
-const ProfilePage = React.lazy(() => import('./pages/ProfilePage').catch(() => ({ default: () => <div>Profile placeholder</div> })));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const JobListPage = React.lazy(() => import('./pages/JobListPage'));
+const KanbanPage = React.lazy(() => import('./pages/KanbanPage'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 
 /** Show LandingPage when logged-out, Dashboard when logged-in */
 function RootRoute() {
@@ -23,7 +23,7 @@ function RootRoute() {
 }
 
 /** Hide navbar on certain public pages */
-const NAVBAR_HIDDEN_PATHS = ['/', '/login', '/register', '/verify-email'];
+const NAVBAR_HIDDEN_PATHS = ['/login', '/register', '/verify-email'];
 
 function AppLayout() {
   const location = useLocation();

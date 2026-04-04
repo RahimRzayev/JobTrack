@@ -35,7 +35,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const response = await api.post('/auth/register/', formData);
-      toast.success(response.data.detail || 'Verification email sent!');
+      toast.success(response.data.message || response.data.detail || 'Verification email sent!');
       navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (error: any) {
       const errorData = error.response?.data || {};

@@ -20,7 +20,7 @@ def generate_cover_letter_pdf(text: str, company: str) -> io.BytesIO:
     styles = getSampleStyleSheet()
     # Create a nice body text style based on Normal
     body_style = ParagraphStyle(
-        'BodyText',
+        'CoverLetterBody',
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=11,

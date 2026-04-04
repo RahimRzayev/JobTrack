@@ -1,4 +1,3 @@
-import os
 import logging
 from PyPDF2 import PdfReader
 
@@ -21,4 +20,4 @@ def extract_text_from_pdf(file_field_or_path):
         return text.strip()
     except Exception as e:
         logger.error(f"Failed to extract text from PDF: {e}")
-        return ""
+        raise ValueError(f"Failed to read PDF file: {e}") from e

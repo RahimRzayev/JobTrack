@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { JobApplication, MatchScoreResult } from '../types';
 import { jobsApi } from '../services/jobsApi';
@@ -18,9 +18,16 @@ export default function MatchScoreModal({ isOpen, onClose, job, onScoreUpdated }
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<MatchScoreResult | null>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      setResult(null);
+      setLoading(false);
+    }
+  }, [isOpen, job.id]);
+
   if (!isOpen) return null;
 
-  const cvPdfUrl = (user as any)?.cv_pdf;
+  const cvPdfUrl = user?.cv_pdf;
 
   const handleCheckMatch = async () => {
     if (!cvPdfUrl) {
@@ -90,27 +97,80 @@ export default function MatchScoreModal({ isOpen, onClose, job, onScoreUpdated }
                 )}
               </div>
             ) : (
-              <div className="mt-4 space-y-6">
-                <div className="flex flex-col items-center justify-center py-6 border rounded-lg bg-gray-50">
+              <div className="mt-4 space-y-5 max-h-[65vh] overflow-y-auto pr-1">
+                {/* Overall Score */}
+                <div className="flex flex-col items-center justify-center py-5 border rounded-lg bg-gray-50">
                   <span className="text-sm font-medium text-gray-500 mb-1">Overall Match Score</span>
                   <div className={`text-4xl font-bold px-6 py-3 rounded-full ${getScoreColor(result.score)}`}>
                     {result.score}%
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                {/* Summary */}
+                {result.summary && (
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                    <p className="text-sm text-indigo-900">{result.summary}</p>
+                  </div>
+                )}
+
+                {/* Category Breakdown */}
+                {result.category_scores && Object.keys(result.category_scores).length > 0 && (
+                  <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h4 className="font-semibold text-gray-800 mb-3 text-sm">Category Breakdown</h4>
+                    <div className="space-y-2.5">
+                      {([
+                        ['technical_skills', 'Technical Skills'],
+                        ['experience_level', 'Experience Level'],
+                        ['domain_knowledge', 'Domain Knowledge'],
+                        ['education', 'Education & Certs'],
+                        ['soft_skills', 'Soft Skills'],
+                      ] as const).map(([key, label]) => {
+                        const val = result.category_scores?.[key];
+                        if (val == null) return null;
+                        const barColor = val >= 70 ? 'bg-green-500' : val >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+                        return (
+                          <div key={key}>
+                            <div className="flex justify-between text-xs mb-0.5">
+                              <span className="text-gray-600">{label}</span>
+                              <span className="font-semibold text-gray-800">{val}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div className={`${barColor} h-2 rounded-full transition-all`} style={{ width: `${val}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Matched Skills & Missing Keywords side by side */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {result.matched_skills && result.matched_skills.length > 0 && (
+                    <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                      <h4 className="font-semibold text-green-800 mb-2 text-sm flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Matched Skills
+                      </h4>
+                      <ul className="list-disc pl-5 space-y-0.5 text-xs text-green-700">
+                        {result.matched_skills.map((s, i) => <li key={i}>{s}</li>)}
+                      </ul>
+                    </div>
+                  )}
                   <div className="border border-red-200 rounded-lg p-4 bg-red-50">
-                    <h4 className="font-semibold text-red-800 mb-2 flex items-center">
-                      <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <h4 className="font-semibold text-red-800 mb-2 text-sm flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                       </svg>
                       Missing Keywords
                     </h4>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-red-700 mt-2">
+                    <ul className="list-disc pl-5 space-y-0.5 text-xs text-red-700">
                       {result.missing_keywords && result.missing_keywords.length > 0 ? (
                         result.missing_keywords.map((kw, i) => <li key={i}>{kw}</li>)
                       ) : (
-                        <li>No missing critical keywords found. Great match!</li>
+                        <li>No missing critical keywords found!</li>
                       )}
                     </ul>
                   </div>

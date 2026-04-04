@@ -1,6 +1,7 @@
 import logging
 import requests
 from django.conf import settings
+from django.core import signing
 from django.shortcuts import redirect
 from decouple import config as decouple_config
 from rest_framework import status
@@ -28,6 +29,12 @@ class GoogleCalendarCallbackView(APIView):
             return Response({'error': 'Missing code or state'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            # Verify the signed state token to get the user ID securely
+            try:
+                user_id = signing.loads(state, max_age=600)  # 10-minute expiry
+            except signing.BadSignature:
+                return Response({'error': 'Invalid or expired state token.'}, status=status.HTTP_400_BAD_REQUEST)
+
             # Exchange code for token directly via API to avoid PKCE mismatch bugs
             token_response = requests.post('https://oauth2.googleapis.com/token', data={
                 'code': code,
@@ -42,12 +49,13 @@ class GoogleCalendarCallbackView(APIView):
                 logger.error(f"Google token error: {token_data}")
                 return Response({'error': f"Google refused code: {token_data.get('error_description', token_data['error'])}"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Retrieve user from state parameter
+            # Retrieve user from verified state parameter
             from django.contrib.auth import get_user_model
             User = get_user_model()
-            user = User.objects.get(id=state)
+            user = User.objects.get(id=user_id)
 
-            profile = user.profile
+            from accounts.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=user)
             profile.google_access_token = token_data['access_token']
             profile.google_refresh_token = token_data.get('refresh_token', profile.google_refresh_token)
             profile.save()
@@ -84,9 +92,13 @@ class ScheduleInterviewView(APIView):
 
         # Validate datetime format and that it's in the future
         try:
-            from datetime import datetime
-            dt = datetime.fromisoformat(interview_datetime.replace('Z', ''))
-            if dt < datetime.now():
+            from datetime import datetime, timezone as dt_timezone
+            from django.utils import timezone
+            raw = interview_datetime.replace('Z', '+00:00')
+            dt = datetime.fromisoformat(raw)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=dt_timezone.utc)
+            if dt < timezone.now():
                 return Response({'error': 'Interview datetime must be in the future.'}, status=status.HTTP_400_BAD_REQUEST)
         except (ValueError, AttributeError):
             return Response({'error': 'Invalid datetime format. Use ISO 8601 format (e.g., 2026-04-15T14:30:00Z).'}, status=status.HTTP_400_BAD_REQUEST)
@@ -96,7 +108,8 @@ class ScheduleInterviewView(APIView):
         except JobApplication.DoesNotExist:
             return Response({'error': 'Job application not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        profile = request.user.profile
+        from accounts.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
         if not profile.google_access_token:
             # Need auth! Generate auth URL, passing user ID in state so the callback knows who to save token to
             import urllib.parse
@@ -107,7 +120,7 @@ class ScheduleInterviewView(APIView):
                 'scope': 'https://www.googleapis.com/auth/calendar.events',
                 'access_type': 'offline',
                 'prompt': 'consent',
-                'state': str(request.user.id)
+                'state': signing.dumps(request.user.id)
             })
             auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{qs}"
             
@@ -135,13 +148,17 @@ class ScheduleInterviewView(APIView):
                 profile.save()
 
             service = build('calendar', 'v3', credentials=creds)
-            dt = datetime.fromisoformat(interview_datetime.replace('Z', ''))
+            raw = interview_datetime.replace('Z', '+00:00')
+            dt = datetime.fromisoformat(raw)
+            if dt.tzinfo is None:
+                from datetime import timezone as dt_timezone
+                dt = dt.replace(tzinfo=dt_timezone.utc)
 
             event = {
                 'summary': f'Interview: {job.position} at {job.company}',
                 'description': f'Interview for {job.position} position at {job.company}.\n\nJob URL: {job.url}',
-                'start': {'dateTime': dt.isoformat() + 'Z', 'timeZone': 'UTC'},
-                'end': {'dateTime': (dt + timedelta(hours=1)).isoformat() + 'Z', 'timeZone': 'UTC'},
+                'start': {'dateTime': dt.isoformat(), 'timeZone': 'UTC'},
+                'end': {'dateTime': (dt + timedelta(hours=1)).isoformat(), 'timeZone': 'UTC'},
                 'reminders': {
                     'useDefault': False,
                     'overrides': [

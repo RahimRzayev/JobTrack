@@ -38,7 +38,7 @@ export default function KanbanPage() {
     if (!window.confirm('Delete this application?')) return;
     try {
       await jobsApi.delete(id);
-      setJobs(jobs.filter(job => job.id !== id));
+      setJobs(prev => prev.filter(job => job.id !== id));
       toast.success('Deleted');
     } catch (error) {
       toast.error('Failed to delete');
@@ -55,7 +55,7 @@ export default function KanbanPage() {
 
     if (source.droppableId !== destColumnId) {
       const previousJobs = [...jobs];
-      const newJobs = jobs.map(job =>
+      const newJobs = previousJobs.map(job =>
         job.id === draggedJobId
           ? { ...job, status: destColumnId as any, status_display: COLUMNS.find(c => c.id === destColumnId)?.title || '' }
           : job
@@ -77,7 +77,7 @@ export default function KanbanPage() {
   };
 
   const handleJobScheduled = (id: number, data: Partial<JobApplication>) => {
-    setJobs(jobs.map(job => job.id === id ? { ...job, ...data } : job));
+    setJobs(prev => prev.map(job => job.id === id ? { ...job, ...data } : job));
   };
 
   const getJobsByStatus = (status: string) => jobs.filter(job => job.status === status);
@@ -139,7 +139,7 @@ export default function KanbanPage() {
                                   compact
                                   onDelete={handleDeleteJob}
                                   onUpdate={(id, data) => {
-                                    setJobs(jobs.map(j => j.id === id ? { ...j, ...data } : j));
+                                    setJobs(prev => prev.map(j => j.id === id ? { ...j, ...data } : j));
                                   }}
                                 />
                             </div>

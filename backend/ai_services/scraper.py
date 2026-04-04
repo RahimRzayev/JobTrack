@@ -92,13 +92,13 @@ def scrape_job_url(url: str) -> str:
         return cleaned[:30_000]
 
     except requests.exceptions.HTTPError as e:
-        status = e.response.status_code if e.response is not None else 'unknown'
-        if status == 403:
+        status_code = e.response.status_code if e.response is not None else 'unknown'
+        if status_code == 403:
             raise Exception("SCRAPING_FAILED")
-        elif status == 404:
+        elif status_code == 404:
             raise Exception(f"The job posting URL returned 404 Not Found. Please check the URL and try again.")
         else:
-            raise Exception(f"HTTP {status} error when fetching the URL. Please check the URL and try again.")
+            raise Exception(f"HTTP {status_code} error when fetching the URL. Please check the URL and try again.")
     except requests.exceptions.ConnectionError:
         raise Exception("Could not connect to the URL. Please check the URL and your network connection.")
     except requests.exceptions.Timeout:

@@ -6,6 +6,8 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  date_joined?: string;
+  cv_pdf?: string | null;
 }
 
 interface AuthContextType {

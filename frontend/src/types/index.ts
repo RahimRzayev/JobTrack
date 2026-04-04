@@ -19,5 +19,14 @@ export interface JobApplication {
 
 export interface MatchScoreResult {
   score: number;
-  missing_keywords: string[];
+  category_scores?: {
+    technical_skills?: number;
+    experience_level?: number;
+    domain_knowledge?: number;
+    education?: number;
+    soft_skills?: number;
+  };
+  matched_skills?: string[];
+  missing_keywords?: string[];
+  summary?: string;
 }

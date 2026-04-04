@@ -19,7 +19,11 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
   useEffect(() => {
     if (isOpen && job?.interview_datetime) {
       const dateObj = new Date(job.interview_datetime);
-      setInterviewDate(dateObj.toISOString().split('T')[0]);
+      // Use local date/time consistently so date and time are in the same reference frame
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      setInterviewDate(`${year}-${month}-${day}`);
       
       const hours = String(dateObj.getHours()).padStart(2, '0');
       const mins = String(dateObj.getMinutes()).padStart(2, '0');
