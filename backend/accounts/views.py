@@ -4,15 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, get_user_model
-from django.core.mail import send_mail
-from django.core.mail.backends.smtp import EmailBackend
 import random
-import logging
 from django.core.cache import cache
-from datetime import datetime, timedelta
+from django.core.mail import send_mail
+
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -28,31 +26,15 @@ class RegisterView(generics.CreateAPIView):
         
         # Start verification flow instead of instant login
         code = str(random.randint(100000, 999999))
-        user_email = user.email.lower()
-        cache.set(f"email_verify_{user_email}", code, timeout=3600)
-        
-        # Track code generation attempts for rate limiting
-        attempts_key = f"email_attempts_{user_email}"
-        attempts = cache.get(attempts_key, 0)
-        cache.set(attempts_key, attempts + 1, timeout=3600)
+        cache.set(f"email_verify_{user.email.lower()}", code, timeout=3600)
 
-        try:
-            send_mail(
-                'Verify your JobTrack Account',
-                f'Your verification code is: {code}\n\nThis code will expire in 1 hour.',
-                'noreply@jobtrack.ai',
-                [user.email],
-                fail_silently=False,
-            )
-            logger.info(f"Verification email sent to {user.email}")
-        except Exception as e:
-            logger.error(f"Failed to send verification email to {user.email}: {str(e)}")
-            # Delete the verification code if email fails
-            cache.delete(f"email_verify_{user_email}")
-            return Response(
-                {'detail': 'Failed to send verification email. Please try again later.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        send_mail(
+            'Verify your JobTrack Account',
+            f'Your verification code is: {code}\n\nThis code will expire in 1 hour.',
+            'noreply@jobtrack.ai',
+            [user.email],
+            fail_silently=False,
+        )
 
         return Response({
             'user': UserSerializer(user).data,
@@ -64,39 +46,16 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(APIView):
     """Log in a user with email and password, return JWT tokens."""
 
-    permissionCheck rate limiting on code requests
-            user_email = user.email.lower()
-            attempts_key = f"email_attempts_{user_email}"
-            attempts = cache.get(attempts_key, 0)
-            
-            if attempts >= 5:  # Max 5 attempts per hour
-                logger.warning(f"Too many verification code requests for {user_email}")
-                return Response(
-                    {'detail': 'Too many requests. Please try again in 1 hour.'},
-                    status=status.HTTP_429_TOO_MANY_REQUESTS
-                )
-            
-            # Regenerate code with rate limiting
-            code = str(random.randint(100000, 999999))
-            cache.set(f"email_verify_{user_email}", code, timeout=3600)
-            cache.set(attempts_key, attempts + 1, timeout=3600)
-            
-            try:
-                send_mail(
-                    'Verify your JobTrack Account',
-                    f'Your new verification code is: {code}\n\nThis code will expire in 1 hour.',
-                    'noreply@jobtrack.ai',
-                    [user.email],
-                    fail_silently=False,
-                )
-                logger.info(f"Verification code resent to {user.email}")
-            except Exception as e:
-                logger.error(f"Failed to send verification email to {user.email}: {str(e)}")
-                return Response(
-                    {'detail': 'Failed to send verification email. Please try again later.'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            er is None:
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = authenticate(
+            email=serializer.validated_data['email'],
+            password=serializer.validated_data['password'],
+        )
+        if user is None:
             return Response(
                 {'detail': 'Invalid email or password.'},
                 status=status.HTTP_401_UNAUTHORIZED,
