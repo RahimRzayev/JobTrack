@@ -77,8 +77,22 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and 'cv_pdf' in request.FILES:
             from accounts.models import UserProfile
+            cv_file = request.FILES['cv_pdf']
+            
+            # Validate file type (only allow PDF)
+            if not cv_file.name.lower().endswith('.pdf'):
+                raise serializers.ValidationError({'cv_pdf': 'Only PDF files are allowed.'})
+            
+            # Validate file size (max 10MB)
+            if cv_file.size > 10 * 1024 * 1024:
+                raise serializers.ValidationError({'cv_pdf': 'File size must be less than 10MB.'})
+            
+            # Validate MIME type
+            if cv_file.content_type != 'application/pdf':
+                raise serializers.ValidationError({'cv_pdf': 'File must be a valid PDF.'})
+            
             profile, _ = UserProfile.objects.get_or_create(user=instance)
-            profile.cv_pdf = request.FILES['cv_pdf']
+            profile.cv_pdf = cv_file
             profile.save()
 
         return instance

@@ -69,7 +69,14 @@ Gaps are areas where the candidate is lacking."""
 
             return Response(result)
 
+        except TimeoutError:
+            logger.error("Match score API request timed out")
+            return Response(
+                {'error': 'Request timed out. The AI is taking too long. Please try again.'},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
         except json.JSONDecodeError:
+            logger.error("Invalid JSON response from Gemini")
             return Response(
                 {'error': 'The AI returned an invalid response. Please try again.'},
                 status=status.HTTP_502_BAD_GATEWAY,
@@ -77,7 +84,7 @@ Gaps are areas where the candidate is lacking."""
         except Exception as e:
             logger.error(f"Match score error: {e}")
             return Response(
-                {'error': 'Failed to analyze match score. Please check your API configuration and try again.'},
+                {'error': 'Failed to analyze match score. Please ensure your CV is readable and try again.'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
@@ -98,9 +105,15 @@ class CoverLetterView(APIView):
         if not cv_pdf:
             return Response({'error': 'No CV PDF found in your profile. Please upload one first.'}, status=status.HTTP_400_BAD_REQUEST)
             
-        resume_text = extract_text_from_pdf(cv_pdf)
-        if not resume_text:
-            return Response({'error': 'Failed to extract text from your CV PDF or it is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            resume_text = extract_text_from_pdf(cv_pdf)
+            if not resume_text or not resume_text.strip():
+                logger.warning(f"PDF extraction returned empty text for user {request.user.id}")
+                return Response({'error': 'Your CV PDF appears to be empty or unreadable. Please upload a different PDF.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"PDF extraction error for user {request.user.id}: {e}")
+            return Response({'error': 'Failed to read your CV PDF. Ensure it\'s a valid PDF file.'}, status=status.HTTP_400_BAD_REQUEST)
 
         job_description = serializer.validated_data['job_description']
         tone = serializer.validated_data.get('tone', 'formal')
@@ -127,10 +140,16 @@ INSTRUCTIONS:
 - Keep it concise — no longer than 400 words.
 - Do NOT include placeholder text like [Company Name] — infer from the job description.
 - Write the letter body only (no subject line).
-- Make it unique and personalized, not generic."""
-
-        try:
-            cover_letter = call_gemini(prompt)
+- Make it uniquTimeoutError:
+            logger.error("Cover letter generation API request timed out")
+            return Response(
+                {'error': 'Request timed out. The AI is taking too long. Please try again.'},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
+        except Exception as e:
+            logger.error(f"Cover letter error: {e}")
+            return Response(
+                {'error': 'Failed to generate cover letter. Please ensure your CV is readable
             return Response({'cover_letter': cover_letter.strip()})
 
         except Exception as e:

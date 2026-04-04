@@ -1,8 +1,37 @@
 import logging
+import signal
+from functools import wraps
 from google import genai
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+
+
+def timeout_handler(signum, frame):
+    """Handler for timeout signals."""
+    raise TimeoutError("Gemini API request timed out after 30 seconds")
+
+
+def with_timeout(timeout_seconds=30):
+    """Decorator to add timeout to function calls."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Only set signal on Unix systems
+            try:
+                old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(timeout_seconds)
+                try:
+                    result = func(*args, **kwargs)
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
+                return result
+            except (ValueError, RuntimeError):
+                # Signals not available on Windows, skip timeout
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 class GeminiClient:
@@ -29,7 +58,7 @@ class GeminiClient:
         logger.info("Successfully initialized Gemini AI client (gemini-2.5-flash)")
 
     def generate_content(self, prompt: str, system_instruction: str = None) -> str:
-        """Generate and return text response from Gemini."""
+        """Generate and return text response from Gemini with timeout."""
         if not self._client:
             raise RuntimeError("Gemini client is not initialized.")
 
@@ -38,11 +67,15 @@ class GeminiClient:
             if system_instruction:
                 full_prompt = f"SYSTEM INSTRUCTION: {system_instruction}\n\nUSER PROMPT: {prompt}"
 
+            # Set a 30-second timeout for the API call
             response = self._client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=full_prompt,
             )
             return response.text
+        except TimeoutError:
+            logger.error("Gemini API request timed out after 30 seconds")
+            raise
         except Exception as e:
             logger.error(f"Error generating Gemini content: {e}")
             raise

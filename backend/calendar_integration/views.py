@@ -2,6 +2,7 @@ import logging
 import requests
 from django.conf import settings
 from django.shortcuts import redirect
+from decouple import config as decouple_config
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -51,14 +52,19 @@ class GoogleCalendarCallbackView(APIView):
             profile.google_refresh_token = token_data.get('refresh_token', profile.google_refresh_token)
             profile.save()
 
-            return redirect('http://localhost:5173/kanban') # Simple redirect hack to back to app
+            # Redirect to frontend using environment configuration
+            frontend_url = decouple_config('FRONTEND_URL', default='http://localhost:5173')
+            return redirect(f'{frontend_url}/kanban')
         except Exception as e:
             import traceback
-            error_details = traceback.format_exc()
-            logger.error(f"OAuth callback error: {error_details}")
-            return Response({
-                'error': 'Failed to process authorization callback',
-                'details': str(e),
+            # Only expose internal details in debug mode
+            response_data = {'error': 'Failed to process authorization callback'}
+            if settings.DEBUG:
+                response_data.update({
+                    'details': str(e),
+                    'traceback': error_details
+                })
+            return Response(response_data   'details': str(e),
                 'traceback': error_details
             }, status=status.HTTP_400_BAD_REQUEST)
 
@@ -77,6 +83,15 @@ class ScheduleInterviewView(APIView):
 
         if not job_id or not interview_datetime:
             return Response({'error': 'Both job_id and interview_datetime are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate datetime format and that it's in the future
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(interview_datetime.replace('Z', ''))
+            if dt < datetime.now():
+                return Response({'error': 'Interview datetime must be in the future.'}, status=status.HTTP_400_BAD_REQUEST)
+        except (ValueError, AttributeError):
+            return Response({'error': 'Invalid datetime format. Use ISO 8601 format (e.g., 2026-04-15T14:30:00Z).'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             job = JobApplication.objects.get(id=job_id, user=request.user)
