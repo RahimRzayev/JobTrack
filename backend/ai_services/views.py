@@ -140,18 +140,18 @@ INSTRUCTIONS:
 - Keep it concise — no longer than 400 words.
 - Do NOT include placeholder text like [Company Name] — infer from the job description.
 - Write the letter body only (no subject line).
-- Make it uniquTimeoutError:
+- Make it unique and compelling to the specific company and role."""
+
+        try:
+            cover_letter = call_gemini(prompt)
+            return Response({'cover_letter': cover_letter.strip()})
+
+        except TimeoutError:
             logger.error("Cover letter generation API request timed out")
             return Response(
                 {'error': 'Request timed out. The AI is taking too long. Please try again.'},
                 status=status.HTTP_504_GATEWAY_TIMEOUT,
             )
-        except Exception as e:
-            logger.error(f"Cover letter error: {e}")
-            return Response(
-                {'error': 'Failed to generate cover letter. Please ensure your CV is readable
-            return Response({'cover_letter': cover_letter.strip()})
-
         except Exception as e:
             logger.error(f"Cover letter error: {e}")
             return Response(

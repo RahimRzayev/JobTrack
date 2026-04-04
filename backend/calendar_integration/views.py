@@ -62,11 +62,9 @@ class GoogleCalendarCallbackView(APIView):
             if settings.DEBUG:
                 response_data.update({
                     'details': str(e),
-                    'traceback': error_details
+                    'traceback': traceback.format_exc()
                 })
-            return Response(response_data   'details': str(e),
-                'traceback': error_details
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ScheduleInterviewView(APIView):
