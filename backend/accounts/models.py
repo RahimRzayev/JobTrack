@@ -43,9 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     cv_pdf = models.FileField(upload_to='cvs/', blank=True, null=True, help_text="User's master CV PDF file")
-    # TODO: Encrypt these tokens in production using django-cryptography or similar
-    google_access_token = models.TextField(blank=True, null=True, help_text="Google Calendar access token (should be encrypted in production)")
-    google_refresh_token = models.TextField(blank=True, null=True, help_text="Google Calendar refresh token (should be encrypted in production)")
+    google_access_token = models.TextField(blank=True, null=True)
+    google_refresh_token = models.TextField(blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

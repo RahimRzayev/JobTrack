@@ -142,7 +142,7 @@ GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 GCP_PROJECT_ID = config('GCP_PROJECT_ID', default='')
 GCP_LOCATION = config('GCP_LOCATION', default='us-central1')
 
-# Google Calendar OAuth
+# Google Calendar OAuth (one-time per-user consent)
 GOOGLE_CALENDAR_CLIENT_ID = config('GOOGLE_CALENDAR_CLIENT_ID', default='')
 GOOGLE_CALENDAR_CLIENT_SECRET = config('GOOGLE_CALENDAR_CLIENT_SECRET', default='')
 GOOGLE_CALENDAR_REDIRECT_URI = config('GOOGLE_CALENDAR_REDIRECT_URI', default='http://localhost:8000/api/calendar/callback/')

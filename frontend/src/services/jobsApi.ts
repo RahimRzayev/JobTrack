@@ -58,6 +58,11 @@ export const jobsApi = {
     });
     return response.data;
   },
+
+  removeInterview: async (job_id: number) => {
+    const response = await api.post<{ message: string }>('/calendar/remove/', { job_id });
+    return response.data;
+  },
   
   getAnalytics: async () => {
     const response = await api.get('/analytics/dashboard/');

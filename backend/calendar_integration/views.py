@@ -1,84 +1,107 @@
 import logging
+import urllib.parse
+from datetime import datetime, timedelta, timezone as dt_timezone
+
 import requests
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core import signing
 from django.shortcuts import redirect
+from django.utils import timezone
 from decouple import config as decouple_config
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.models import UserProfile
 from jobs.models import JobApplication
 
+User = get_user_model()
 logger = logging.getLogger(__name__)
+
+
+def _get_user_calendar_service(profile: UserProfile) -> build:
+    """Build a Google Calendar service using the user's stored OAuth tokens."""
+    creds = Credentials(
+        token=profile.google_access_token,
+        refresh_token=profile.google_refresh_token,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=settings.GOOGLE_CALENDAR_CLIENT_ID,
+        client_secret=settings.GOOGLE_CALENDAR_CLIENT_SECRET,
+    )
+
+    service = build('calendar', 'v3', credentials=creds)
+
+    # If the token was refreshed, persist the new access token
+    if creds.token and creds.token != profile.google_access_token:
+        profile.google_access_token = creds.token
+        profile.save()
+
+    return service
 
 
 class GoogleCalendarCallbackView(APIView):
     """
     GET /api/calendar/callback/
-    Callback URL where Google redirects back with the code.
+    Handles the OAuth redirect from Google after the user grants calendar access.
+    This only happens once per user.
     """
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
         code = request.query_params.get('code')
-        state = request.query_params.get('state') # User ID is passed in state
+        state = request.query_params.get('state')
 
         if not code or not state:
             return Response({'error': 'Missing code or state'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Verify the signed state token to get the user ID securely
-            try:
-                user_id = signing.loads(state, max_age=600)  # 10-minute expiry
-            except signing.BadSignature:
-                return Response({'error': 'Invalid or expired state token.'}, status=status.HTTP_400_BAD_REQUEST)
+            user_id = signing.loads(state, max_age=600)  # 10-minute expiry
+        except signing.BadSignature:
+            return Response({'error': 'Invalid or expired state token.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Exchange code for token directly via API to avoid PKCE mismatch bugs
-            token_response = requests.post('https://oauth2.googleapis.com/token', data={
-                'code': code,
-                'client_id': settings.GOOGLE_CALENDAR_CLIENT_ID,
-                'client_secret': settings.GOOGLE_CALENDAR_CLIENT_SECRET,
-                'redirect_uri': settings.GOOGLE_CALENDAR_REDIRECT_URI,
-                'grant_type': 'authorization_code'
-            })
-            token_data = token_response.json()
+        # Exchange authorization code for tokens
+        token_response = requests.post('https://oauth2.googleapis.com/token', data={
+            'code': code,
+            'client_id': settings.GOOGLE_CALENDAR_CLIENT_ID,
+            'client_secret': settings.GOOGLE_CALENDAR_CLIENT_SECRET,
+            'redirect_uri': settings.GOOGLE_CALENDAR_REDIRECT_URI,
+            'grant_type': 'authorization_code',
+        })
+        token_data = token_response.json()
 
-            if 'error' in token_data:
-                logger.error(f"Google token error: {token_data}")
-                return Response({'error': f"Google refused code: {token_data.get('error_description', token_data['error'])}"}, status=status.HTTP_400_BAD_REQUEST)
+        if 'error' in token_data:
+            logger.error(f"Google token error: {token_data}")
+            return Response(
+                {'error': f"Google refused code: {token_data.get('error_description', token_data['error'])}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            # Retrieve user from verified state parameter
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
+        try:
             user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-            from accounts.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(user=user)
-            profile.google_access_token = token_data['access_token']
-            profile.google_refresh_token = token_data.get('refresh_token', profile.google_refresh_token)
-            profile.save()
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.google_access_token = token_data['access_token']
+        profile.google_refresh_token = token_data.get('refresh_token', profile.google_refresh_token)
+        profile.save()
 
-            # Redirect to frontend using environment configuration
-            frontend_url = decouple_config('FRONTEND_URL', default='http://localhost:5173')
-            return redirect(f'{frontend_url}/kanban')
-        except Exception as e:
-            import traceback
-            # Only expose internal details in debug mode
-            response_data = {'error': 'Failed to process authorization callback'}
-            if settings.DEBUG:
-                response_data.update({
-                    'details': str(e),
-                    'traceback': traceback.format_exc()
-                })
-            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        # Redirect back to the frontend
+        frontend_url = decouple_config('FRONTEND_URL', default='http://localhost:5173')
+        return redirect(f'{frontend_url}/kanban')
 
 
 class ScheduleInterviewView(APIView):
     """
     POST /api/calendar/schedule/
-    Schedule an interview on Google Calendar.
+    Schedule an interview on the user's Google Calendar.
+    If the user hasn't connected their calendar yet, returns an auth_url
+    for a one-time OAuth consent.
     Accepts: job_id, interview_datetime
     """
     permission_classes = [IsAuthenticated]
@@ -90,10 +113,8 @@ class ScheduleInterviewView(APIView):
         if not job_id or not interview_datetime:
             return Response({'error': 'Both job_id and interview_datetime are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Validate datetime format and that it's in the future
+        # Validate datetime
         try:
-            from datetime import datetime, timezone as dt_timezone
-            from django.utils import timezone
             raw = interview_datetime.replace('Z', '+00:00')
             dt = datetime.fromisoformat(raw)
             if dt.tzinfo is None:
@@ -108,11 +129,10 @@ class ScheduleInterviewView(APIView):
         except JobApplication.DoesNotExist:
             return Response({'error': 'Job application not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        from accounts.models import UserProfile
+        # Check if user has connected Google Calendar
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
         if not profile.google_access_token:
-            # Need auth! Generate auth URL, passing user ID in state so the callback knows who to save token to
-            import urllib.parse
+            # First time — send them to Google for one-time consent
             qs = urllib.parse.urlencode({
                 'client_id': settings.GOOGLE_CALENDAR_CLIENT_ID,
                 'redirect_uri': settings.GOOGLE_CALENDAR_REDIRECT_URI,
@@ -120,39 +140,17 @@ class ScheduleInterviewView(APIView):
                 'scope': 'https://www.googleapis.com/auth/calendar.events',
                 'access_type': 'offline',
                 'prompt': 'consent',
-                'state': signing.dumps(request.user.id)
+                'state': signing.dumps(request.user.id),
             })
             auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{qs}"
-            
             return Response({
-                'error': 'Google Calendar needs to be connected.',
-                'auth_url': auth_url
+                'error': 'Google Calendar not connected. Please authorize once.',
+                'auth_url': auth_url,
             }, status=status.HTTP_401_UNAUTHORIZED)
 
+        # User already authorized — create the event on their calendar
         try:
-            from google.oauth2.credentials import Credentials
-            from googleapiclient.discovery import build
-            from datetime import datetime, timedelta
-
-            creds = Credentials(
-                token=profile.google_access_token,
-                refresh_token=profile.google_refresh_token,
-                token_uri="https://oauth2.googleapis.com/token",
-                client_id=settings.GOOGLE_CALENDAR_CLIENT_ID,
-                client_secret=settings.GOOGLE_CALENDAR_CLIENT_SECRET,
-            )
-            
-            # If the token was refreshed, save the new one
-            if creds.token and creds.token != profile.google_access_token:
-                profile.google_access_token = creds.token
-                profile.save()
-
-            service = build('calendar', 'v3', credentials=creds)
-            raw = interview_datetime.replace('Z', '+00:00')
-            dt = datetime.fromisoformat(raw)
-            if dt.tzinfo is None:
-                from datetime import timezone as dt_timezone
-                dt = dt.replace(tzinfo=dt_timezone.utc)
+            service = _get_user_calendar_service(profile)
 
             event = {
                 'summary': f'Interview: {job.position} at {job.company}',
@@ -169,26 +167,63 @@ class ScheduleInterviewView(APIView):
             }
 
             created_event = service.events().insert(calendarId='primary', body=event).execute()
-            
+
             job.calendar_event_id = created_event.get('id', '')
             job.interview_datetime = dt
             job.save()
 
             return Response({
-                'message': 'Interview scheduled successfully.',
+                'message': 'Interview scheduled and added to your Google Calendar.',
                 'event_id': created_event.get('id'),
                 'event_link': created_event.get('htmlLink'),
             })
 
         except Exception as e:
             logger.error(f"Calendar API error: {e}")
-            if "invalid_grant" in str(e) or "Refresh Error" in str(e):
+            # If token is expired/revoked, clear it so user re-authorizes next time
+            if 'invalid_grant' in str(e).lower() or 'token' in str(e).lower():
                 profile.google_access_token = None
                 profile.google_refresh_token = None
                 profile.save()
-                return Response({'error': 'Google token expired. Please interact to re-authorize.'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {'error': 'Google Calendar authorization expired. Please try again to re-authorize.'},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            detail = str(e) if settings.DEBUG else 'Failed to create calendar event.'
+            return Response({'error': detail}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-            return Response(
-                {'error': 'Failed to create calendar event.'},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+
+class RemoveInterviewView(APIView):
+    """
+    POST /api/calendar/remove/
+    Remove interview date and delete the Google Calendar event if it exists.
+    Accepts: job_id
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        job_id = request.data.get('job_id')
+        if not job_id:
+            return Response({'error': 'job_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            job = JobApplication.objects.get(id=job_id, user=request.user)
+        except JobApplication.DoesNotExist:
+            return Response({'error': 'Job application not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Try to delete the Google Calendar event if one exists
+        if job.calendar_event_id:
+            try:
+                profile = UserProfile.objects.get(user=request.user)
+                if profile.google_access_token:
+                    service = _get_user_calendar_service(profile)
+                    service.events().delete(calendarId='primary', eventId=job.calendar_event_id).execute()
+            except Exception as e:
+                logger.warning(f"Could not delete calendar event {job.calendar_event_id}: {e}")
+
+        # Clear interview data regardless of calendar deletion outcome
+        job.calendar_event_id = ''
+        job.interview_datetime = None
+        job.save()
+
+        return Response({'message': 'Interview removed successfully.'})

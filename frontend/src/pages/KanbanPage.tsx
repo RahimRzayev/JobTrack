@@ -4,6 +4,7 @@ import { JobApplication } from '../types';
 import { jobsApi } from '../services/jobsApi';
 import JobCard from '../components/JobCard';
 import ScheduleInterviewModal from '../components/ScheduleInterviewModal';
+import RemoveInterviewModal from '../components/RemoveInterviewModal';
 import toast from 'react-hot-toast';
 
 const COLUMNS = [
@@ -19,6 +20,8 @@ export default function KanbanPage() {
   const [loading, setLoading] = useState(true);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [jobToSchedule, setJobToSchedule] = useState<JobApplication | null>(null);
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [jobToRemoveInterview, setJobToRemoveInterview] = useState<JobApplication | null>(null);
 
   const fetchJobs = async () => {
     try {
@@ -65,9 +68,13 @@ export default function KanbanPage() {
       try {
         await jobsApi.update(draggedJobId, { status: destColumnId as any });
         toast.success(`Moved to ${COLUMNS.find(c => c.id === destColumnId)?.title}`);
+        const draggedJob = newJobs.find(j => j.id === draggedJobId) as JobApplication;
         if (destColumnId === 'interviewing') {
-          setJobToSchedule(newJobs.find(j => j.id === draggedJobId) as JobApplication);
+          setJobToSchedule(draggedJob);
           setIsScheduleModalOpen(true);
+        } else if (source.droppableId === 'interviewing' && draggedJob.interview_datetime) {
+          setJobToRemoveInterview(draggedJob);
+          setIsRemoveModalOpen(true);
         }
       } catch (error) {
         setJobs(previousJobs);
@@ -78,6 +85,10 @@ export default function KanbanPage() {
 
   const handleJobScheduled = (id: number, data: Partial<JobApplication>) => {
     setJobs(prev => prev.map(job => job.id === id ? { ...job, ...data } : job));
+  };
+
+  const handleInterviewRemoved = (id: number) => {
+    setJobs(prev => prev.map(job => job.id === id ? { ...job, interview_datetime: null, calendar_event_id: '' } : job));
   };
 
   const getJobsByStatus = (status: string) => jobs.filter(job => job.status === status);
@@ -167,6 +178,14 @@ export default function KanbanPage() {
         onClose={() => setIsScheduleModalOpen(false)}
         job={jobToSchedule}
         onScheduled={handleJobScheduled}
+      />
+
+      <RemoveInterviewModal
+        isOpen={isRemoveModalOpen}
+        onClose={() => setIsRemoveModalOpen(false)}
+        job={jobToRemoveInterview}
+        onRemoved={handleInterviewRemoved}
+        onKept={() => {}}
       />
     </div>
   );

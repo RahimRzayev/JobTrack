@@ -15,6 +15,7 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
   const [interviewDate, setInterviewDate] = useState('');
   const [interviewTime, setInterviewTime] = useState('');
   const [loading, setLoading] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   useEffect(() => {
     if (isOpen && job?.interview_datetime) {
@@ -70,6 +71,23 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
     }
   };
 
+  const handleRemoveInterview = async () => {
+    if (!job) return;
+    setRemoving(true);
+    try {
+      await jobsApi.removeInterview(job.id);
+      onScheduled(job.id, { interview_datetime: null, calendar_event_id: '' });
+      toast.success('Interview removed from calendar');
+      setInterviewDate('');
+      setInterviewTime('');
+      onClose();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to remove interview');
+    } finally {
+      setRemoving(false);
+    }
+  };
+
   return createPortal(
     <div className="fixed inset-0 z-[70] overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
@@ -121,22 +139,36 @@ export default function ScheduleInterviewModal({ isOpen, onClose, job, onSchedul
               </div>
             </div>
             
-            <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-70"
-              >
-                {loading ? 'Scheduling...' : 'Schedule Interview'}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Skip for now
-              </button>
+            <div className="bg-gray-50 px-4 py-3 sm:px-6">
+              <div className="sm:flex sm:flex-row-reverse">
+                <button
+                  type="submit"
+                  disabled={loading || removing}
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-70"
+                >
+                  {loading ? 'Scheduling...' : 'Schedule Interview'}
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={loading || removing}
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+              {job.interview_datetime && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={handleRemoveInterview}
+                    disabled={loading || removing}
+                    className="inline-flex w-full justify-center rounded-md border border-transparent bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-70"
+                  >
+                    {removing ? 'Removing...' : 'Remove Interview & Delete from Calendar'}
+                  </button>
+                </div>
+              )}
             </div>
           </form>
         </div>
