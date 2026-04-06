@@ -74,7 +74,7 @@ export default function JobListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--color-ink)' }}>My Applications</h2>
+          <h2 className="text-2xl font-black" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-display)' }}>My Applications</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--color-slate)' }}>
             {filteredJobs.length} application{filteredJobs.length !== 1 ? 's' : ''} found
           </p>

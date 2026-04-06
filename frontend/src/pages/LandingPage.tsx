@@ -6,32 +6,29 @@ import {
   Upload,
   LinkIcon,
   Sparkles,
-  ShieldCheck,
-  Cpu,
-  Activity,
-  ChevronRight,
   ArrowRight,
+  Check,
 } from 'lucide-react';
 
 const FEATURES = [
   {
     icon: ScanSearch,
     title: 'AI Match Scorer',
-    desc: 'Upload your CV and let Gemini AI analyze how well you fit any job description — get a percentage score and actionable feedback on missing keywords.',
+    desc: 'Upload your CV and let Gemini AI score how well you fit any role. Get actionable feedback on missing keywords.',
     accent: 'var(--color-coral)',
     accentBg: 'var(--color-coral-l)',
   },
   {
     icon: Globe,
     title: 'Smart Scraper',
-    desc: 'Paste any job posting URL and our scraper automatically extracts the company name, role, location, and deadline — saving you minutes of tedious copy-paste.',
+    desc: 'Paste a job URL — we extract the company, role, location, and deadline automatically. No more copy-paste.',
     accent: 'var(--color-teal)',
     accentBg: 'var(--color-teal-l)',
   },
   {
     icon: FileText,
     title: 'Cover Letter Architect',
-    desc: 'Generate tailored, professional cover letters in one click. Choose formal or friendly tone and download as a PDF instantly.',
+    desc: 'Generate tailored cover letters in one click. Choose your tone, download as PDF. Done.',
     accent: 'var(--color-violet)',
     accentBg: 'var(--color-violet-l)',
   },
@@ -39,147 +36,133 @@ const FEATURES = [
 
 const STEPS = [
   {
-    num: '01',
+    num: '1',
     icon: Upload,
-    title: 'Upload Your CV',
-    desc: 'Save your master PDF resume once. Our AI uses it for all future analyses.',
+    title: 'Upload your CV once',
+    desc: 'Your master resume powers every future analysis.',
   },
   {
-    num: '02',
+    num: '2',
     icon: LinkIcon,
-    title: 'Add Jobs via URL',
-    desc: 'Paste a link or manually enter details. We auto-extract everything for you.',
+    title: 'Add jobs in seconds',
+    desc: 'Paste a URL or enter details manually. We handle the rest.',
   },
   {
-    num: '03',
+    num: '3',
     icon: Sparkles,
-    title: 'Get AI Insights',
-    desc: 'Match scores, cover letters, and interview scheduling — all in one place.',
+    title: 'Let AI do the work',
+    desc: 'Match scores, cover letters, interview scheduling — automated.',
   },
-];
-
-const TRUST = [
-  { icon: ShieldCheck, label: '100% Secure', sub: 'Your data stays private' },
-  { icon: Cpu, label: 'AI-Powered', sub: 'Google Gemini integration' },
-  { icon: Activity, label: 'Real-time Tracking', sub: 'Kanban board & analytics' },
 ];
 
 export default function LandingPage() {
   return (
     <div className="overflow-x-hidden">
-      {/* ─── HERO ─── */}
-      <section className="relative" style={{ backgroundColor: 'var(--color-cream)' }}>
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.06]"
-          style={{
-            background: 'radial-gradient(circle, var(--color-coral) 0%, transparent 70%)',
-            transform: 'translate(30%, -40%)',
-          }}
-        />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.05]"
-          style={{
-            background: 'radial-gradient(circle, var(--color-teal) 0%, transparent 70%)',
-            transform: 'translate(-30%, 30%)',
-          }}
-        />
-
-        {/* Nav */}
-        <nav className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-black text-white"
+      {/* ─── NAV ─── */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md" style={{ backgroundColor: 'rgba(250,248,245,0.85)', borderBottom: '1px solid var(--color-sand)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black text-white"
               style={{ backgroundColor: 'var(--color-coral)' }}>JT</span>
-            <span className="text-xl font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack</span>
-            <span className="text-[10px] font-bold rounded px-1.5 py-0.5"
-              style={{ backgroundColor: 'var(--color-cream-d)', color: 'var(--color-slate)' }}>AI</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            <span className="text-lg font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/login" className="text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
               style={{ color: 'var(--color-charcoal)' }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-cream-d)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
               Sign in
             </Link>
-            <Link to="/register" className="studio-btn primary text-sm flex items-center gap-1.5">
-              Get Started <ChevronRight className="w-4 h-4" />
+            <Link to="/register"
+              className="text-sm font-bold px-5 py-1.5 rounded-lg text-white transition-all hover:opacity-90"
+              style={{ backgroundColor: 'var(--color-coral)' }}>
+              Get Started
             </Link>
           </div>
-        </nav>
+        </div>
+      </nav>
 
-        {/* Hero content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-24 md:pt-24 md:pb-32">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8"
-              style={{ backgroundColor: 'var(--color-coral-l)', color: 'var(--color-coral)' }}>
-              <Sparkles className="w-3.5 h-3.5" /> Powered by Google Gemini AI
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-[1.1] mb-6"
-              style={{ fontFamily: 'var(--font-display)' }}>
-              Master Your Career{' '}
-              <span style={{ color: 'var(--color-coral)' }}>Search</span>{' '}
-              with <span style={{ color: 'var(--color-teal)' }}>AI</span>
-            </h1>
-
-            <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-              style={{ color: 'var(--color-slate)' }}>
-              Stop juggling spreadsheets. JobTrack automates your job tracking, scores how well
-              your CV matches each role, and generates tailored cover letters — all in one clean dashboard.
+      {/* ─── HERO ─── */}
+      <section style={{ backgroundColor: 'var(--color-cream)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold mb-4 flex items-center gap-2"
+              style={{ color: 'var(--color-coral)' }}>
+              <Sparkles className="w-4 h-4" /> Powered by Google Gemini
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <h1 className="text-4xl sm:text-5xl md:text-[3.5rem] font-black leading-[1.08] mb-6"
+              style={{ fontFamily: 'var(--font-display)', color: 'var(--color-ink)' }}>
+              The job search toolkit you actually need
+            </h1>
+
+            <p className="text-lg md:text-xl leading-relaxed mb-8" style={{ color: 'var(--color-slate)' }}>
+              Track applications, score your CV match, generate cover letters, 
+              and schedule interviews — all from one dashboard.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 mb-12">
               <Link to="/register"
-                className="studio-btn primary text-base px-8 py-3.5 flex items-center justify-center gap-2 rounded-xl shadow-lg transition-transform hover:scale-105"
+                className="inline-flex items-center justify-center gap-2 text-base font-bold px-7 py-3 rounded-lg text-white transition-all hover:opacity-90"
                 style={{ backgroundColor: 'var(--color-coral)' }}>
-                Start Tracking for Free <ArrowRight className="w-5 h-5" />
+                Start for free <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="#features"
-                className="studio-btn secondary text-base px-8 py-3.5 flex items-center justify-center gap-2 rounded-xl">
-                See Features
+              <a href="#how"
+                className="inline-flex items-center justify-center gap-2 text-base font-medium px-7 py-3 rounded-lg transition-colors"
+                style={{ color: 'var(--color-charcoal)', backgroundColor: 'var(--color-cream-d)' }}>
+                See how it works
               </a>
             </div>
-          </div>
 
-          {/* Hero metrics bar */}
-          <div className="mt-16 md:mt-20 max-w-2xl mx-auto">
-            <div className="studio-card p-1 flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x"
-              style={{ borderColor: 'var(--color-sand)' }}>
-              {[
-                { val: '90%', label: 'Faster job tracking' },
-                { val: '1-Click', label: 'Cover letter generation' },
-                { val: '100%', label: 'Free to use' },
-              ].map((m, i) => (
-                <div key={i} className="flex-1 text-center py-4 px-3">
-                  <span className="text-xl font-bold block" style={{ color: 'var(--color-ink)' }}>{m.val}</span>
-                  <span className="text-xs font-medium" style={{ color: 'var(--color-slate)' }}>{m.label}</span>
-                </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm" style={{ color: 'var(--color-slate)' }}>
+              {['Free forever', 'No credit card', 'Works with any job board'].map((item) => (
+                <span key={item} className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4" style={{ color: 'var(--color-teal)' }} /> {item}
+                </span>
               ))}
             </div>
           </div>
         </div>
       </section>
 
+      {/* ─── STATS STRIP ─── */}
+      <section style={{ backgroundColor: '#fff', borderTop: '1px solid var(--color-sand)', borderBottom: '1px solid var(--color-sand)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-3 divide-x" style={{ borderColor: 'var(--color-sand)' }}>
+            {[
+              { val: '90%', label: 'Faster tracking' },
+              { val: '1-Click', label: 'Cover letters' },
+              { val: '100%', label: 'Free to use' },
+            ].map((m, i) => (
+              <div key={i} className="text-center py-6 md:py-8">
+                <span className="text-xl md:text-2xl font-black block mb-0.5" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-display)' }}>{m.val}</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--color-slate)' }}>{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── FEATURES ─── */}
       <section id="features" className="py-20 md:py-28" style={{ backgroundColor: '#fff' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-widest mb-3 block"
-              style={{ color: 'var(--color-coral)' }}>Core Features</span>
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Everything you need, <span style={{ color: 'var(--color-coral)' }}>nothing you don't</span>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="mb-14 max-w-lg">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: 'var(--color-coral)' }}>Features</p>
+            <h2 className="text-3xl md:text-4xl font-black leading-tight">
+              Three tools.<br />Zero busywork.
             </h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: 'var(--color-slate)' }}>
-              Three AI-powered tools designed to cut through the noise and land your next role faster.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-xl overflow-hidden"
+            style={{ backgroundColor: 'var(--color-sand)' }}>
             {FEATURES.map((f, i) => (
-              <div key={i} className="studio-card p-7 flex flex-col group hover:shadow-lg transition-shadow duration-300">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110"
+              <div key={i} className="p-8 flex flex-col" style={{ backgroundColor: '#fff' }}>
+                <div className="w-11 h-11 rounded-lg flex items-center justify-center mb-6"
                   style={{ backgroundColor: f.accentBg }}>
-                  <f.icon className="w-6 h-6" style={{ color: f.accent }} />
+                  <f.icon className="w-5 h-5" style={{ color: f.accent }} />
                 </div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-sans)' }}>
+                <h3 className="text-base font-bold mb-2" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-sans)' }}>
                   {f.title}
                 </h3>
                 <p className="text-sm leading-relaxed flex-1" style={{ color: 'var(--color-slate)' }}>{f.desc}</p>
@@ -190,35 +173,35 @@ export default function LandingPage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-20 md:py-28" style={{ backgroundColor: 'var(--color-cream)' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-widest mb-3 block"
-              style={{ color: 'var(--color-teal)' }}>How It Works</span>
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Up and running in <span style={{ color: 'var(--color-teal)' }}>3 simple steps</span>
+      <section id="how" className="py-20 md:py-28" style={{ backgroundColor: 'var(--color-cream)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="mb-14 max-w-lg">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: 'var(--color-teal)' }}>How it works</p>
+            <h2 className="text-3xl md:text-4xl font-black leading-tight">
+              Up and running in minutes
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {STEPS.map((s, i) => (
-              <div key={i} className="relative text-center">
-                {/* Connecting line (desktop only) */}
-                {i < STEPS.length - 1 && (
-                  <div className="hidden md:block absolute top-10 left-[60%] w-[80%] h-px"
-                    style={{ backgroundColor: 'var(--color-sand)' }} />
-                )}
-                <div className="relative inline-flex flex-col items-center">
-                  <span className="text-[10px] font-bold tracking-widest mb-3"
-                    style={{ color: 'var(--color-coral)' }}>{s.num}</span>
-                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
-                    style={{ backgroundColor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid var(--color-sand)' }}>
-                    <s.icon className="w-8 h-8" style={{ color: 'var(--color-ink)' }} />
+              <div key={i} className="flex gap-5">
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white"
+                    style={{ backgroundColor: 'var(--color-coral)' }}>{s.num}</span>
+                  {i < STEPS.length - 1 && (
+                    <div className="w-px flex-1 mt-3" style={{ backgroundColor: 'var(--color-stone)' }} />
+                  )}
+                </div>
+                <div className="pb-8">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
+                    style={{ backgroundColor: '#fff', border: '1px solid var(--color-sand)' }}>
+                    <s.icon className="w-6 h-6" style={{ color: 'var(--color-ink)' }} />
                   </div>
-                  <h3 className="text-base font-bold mb-2" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-sans)' }}>
+                  <h3 className="text-base font-bold mb-1.5" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-sans)' }}>
                     {s.title}
                   </h3>
-                  <p className="text-sm leading-relaxed max-w-[240px]" style={{ color: 'var(--color-slate)' }}>{s.desc}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--color-slate)' }}>{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -226,54 +209,37 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── TRUST / SOCIAL PROOF ─── */}
-      <section className="py-16 md:py-20" style={{ backgroundColor: '#fff' }}>
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {TRUST.map((t, i) => (
-              <div key={i} className="flex items-center gap-4 p-5 rounded-xl"
-                style={{ backgroundColor: 'var(--color-cream)', border: '1px solid var(--color-sand)' }}>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'var(--color-cream-d)' }}>
-                  <t.icon className="w-5 h-5" style={{ color: 'var(--color-navy)' }} />
-                </div>
-                <div>
-                  <div className="text-sm font-bold" style={{ color: 'var(--color-ink)' }}>{t.label}</div>
-                  <div className="text-xs" style={{ color: 'var(--color-slate)' }}>{t.sub}</div>
-                </div>
-              </div>
-            ))}
+      {/* ─── CTA ─── */}
+      <section style={{ backgroundColor: 'var(--color-ink)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20 md:py-24">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="max-w-lg">
+              <h2 className="text-2xl md:text-3xl font-black mb-3" style={{ color: '#fff', fontFamily: 'var(--font-display)' }}>
+                Ready to land your next role?
+              </h2>
+              <p className="text-base" style={{ color: 'var(--color-stone)' }}>
+                Join JobTrack and let AI handle the heavy lifting. Free forever — no credit card required.
+              </p>
+            </div>
+            <Link to="/register"
+              className="inline-flex items-center justify-center gap-2 text-base font-bold px-8 py-3.5 rounded-lg text-white transition-all hover:opacity-90 flex-shrink-0"
+              style={{ backgroundColor: 'var(--color-coral)' }}>
+              Create Free Account <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ─── CTA BANNER ─── */}
-      <section className="py-20 md:py-28" style={{ backgroundColor: 'var(--color-ink)' }}>
-        <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-black mb-5" style={{ color: '#fff' }}>
-            Ready to land your next role?
-          </h2>
-          <p className="text-base md:text-lg mb-10 max-w-xl mx-auto" style={{ color: 'var(--color-stone)' }}>
-            Join JobTrack and let AI handle the heavy lifting. Start for free — no credit card required.
-          </p>
-          <Link to="/register"
-            className="inline-flex items-center gap-2 text-base font-bold px-10 py-4 rounded-xl text-white transition-transform hover:scale-105"
-            style={{ backgroundColor: 'var(--color-coral)' }}>
-            Create Free Account <ArrowRight className="w-5 h-5" />
-          </Link>
         </div>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="py-8" style={{ backgroundColor: 'var(--color-cream)', borderTop: '1px solid var(--color-sand)' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="py-6" style={{ backgroundColor: 'var(--color-cream)', borderTop: '1px solid var(--color-sand)' }}>
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-black text-white"
+            <span className="w-6 h-6 rounded flex items-center justify-center text-[10px] font-black text-white"
               style={{ backgroundColor: 'var(--color-coral)' }}>JT</span>
-            <span className="text-sm font-bold" style={{ color: 'var(--color-charcoal)' }}>JobTrack AI</span>
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-charcoal)' }}>JobTrack AI</span>
           </div>
           <p className="text-xs" style={{ color: 'var(--color-slate)' }}>
-            © {new Date().getFullYear()} JobTrack AI. Built with ❤️
+            © {new Date().getFullYear()} JobTrack AI
           </p>
         </div>
       </footer>

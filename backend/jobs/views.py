@@ -194,11 +194,22 @@ class DashboardAnalyticsView(APIView):
             avg=Avg('match_score')
         )['avg']
 
+        # Upcoming interviews
+        from django.utils import timezone as tz
+        upcoming = list(
+            jobs.filter(interview_datetime__gte=tz.now())
+                .order_by('interview_datetime')[:5]
+                .values('id', 'company', 'position', 'interview_datetime')
+        )
+        for item in upcoming:
+            item['interview_datetime'] = item['interview_datetime'].isoformat()
+
         return Response({
             'total': jobs.count(),
             'status_counts': status_counts,
             'applications_over_time': apps_over_time,
             'average_match_score': round(avg_score, 1) if avg_score else None,
+            'upcoming_interviews': upcoming,
         })
 
 

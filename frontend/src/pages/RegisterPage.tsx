@@ -46,57 +46,71 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <div className="w-full max-w-md animate-fade-in-up">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12"
+      style={{ background: 'linear-gradient(135deg, var(--color-cream) 0%, #f5ece4 50%, var(--color-cream-d) 100%)' }}>
+      <div className="w-full max-w-[420px] animate-fade-in-up">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2.5 mb-8 hover:opacity-90 transition-opacity">
-          <span className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white"
+          <span className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-black text-white"
             style={{ backgroundColor: 'var(--color-coral)' }}>JT</span>
-          <span className="text-2xl font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack AI</span>
+          <span className="text-xl font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack AI</span>
         </Link>
         
-        <div className="studio-card p-8">
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-ink)' }}>Create account</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--color-slate)' }}>
-            Already have an account?{' '}
-            <Link to="/login" className="font-semibold" style={{ color: 'var(--color-coral)' }}>Sign in</Link>
-          </p>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>First name</label>
-                <input name="first_name" required className="w-full px-3 py-2.5 text-sm" value={formData.first_name} onChange={handleChange} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Last name</label>
-                <input name="last_name" required className="w-full px-3 py-2.5 text-sm" value={formData.last_name} onChange={handleChange} />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Email</label>
-              <input name="email" type="email" required className="w-full px-3 py-2.5 text-sm" value={formData.email} onChange={handleChange} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Password</label>
-              <input name="password" type="password" required className="w-full px-3 py-2.5 text-sm" value={formData.password} onChange={handleChange} />
-              {strength.msg && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 h-1 rounded-full" style={{ backgroundColor: 'var(--color-sand)' }}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${strength.pct}%`, backgroundColor: strength.color }} />
-                  </div>
-                  <span className="text-xs font-semibold" style={{ color: strength.color }}>{strength.msg}</span>
+        <div className="rounded-xl overflow-hidden flex"
+          style={{
+            backgroundColor: '#fff',
+            border: '1px solid var(--color-sand)',
+            boxShadow: '0 8px 30px rgba(30,28,24,0.10), 0 2px 6px rgba(30,28,24,0.04)',
+          }}>
+          {/* Accent stripe */}
+          <div className="w-1.5 flex-shrink-0"
+            style={{ background: 'linear-gradient(to bottom, var(--color-coral), #c44a35)' }} />
+
+          <div className="flex-1 p-8 sm:p-10">
+            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-display)' }}>Create account</h2>
+            <p className="text-sm mb-7" style={{ color: 'var(--color-slate)' }}>
+              Already have an account?{' '}
+              <Link to="/login" className="font-semibold hover:underline" style={{ color: 'var(--color-coral)' }}>Sign in</Link>
+            </p>
+            
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>First name</label>
+                  <input name="first_name" required className="w-full px-3.5 py-2.5 text-sm" value={formData.first_name} onChange={handleChange} />
                 </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Confirm password</label>
-              <input name="password_confirm" type="password" required className="w-full px-3 py-2.5 text-sm" value={formData.password_confirm} onChange={handleChange} />
-            </div>
-            <button type="submit" disabled={loading} className="studio-btn primary w-full py-2.5 mt-2">
-              {loading ? 'Creating...' : 'Create account'}
-            </button>
-          </form>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Last name</label>
+                  <input name="last_name" required className="w-full px-3.5 py-2.5 text-sm" value={formData.last_name} onChange={handleChange} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Email</label>
+                <input name="email" type="email" required className="w-full px-3.5 py-2.5 text-sm" value={formData.email} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Password</label>
+                <input name="password" type="password" required className="w-full px-3.5 py-2.5 text-sm" value={formData.password} onChange={handleChange} />
+                {strength.msg && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: 'var(--color-sand)' }}>
+                      <div className="h-full rounded-full transition-all duration-300" style={{ width: `${strength.pct}%`, backgroundColor: strength.color }} />
+                    </div>
+                    <span className="text-xs font-semibold" style={{ color: strength.color }}>{strength.msg}</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-charcoal)' }}>Confirm password</label>
+                <input name="password_confirm" type="password" required className="w-full px-3.5 py-2.5 text-sm" value={formData.password_confirm} onChange={handleChange} />
+              </div>
+              <button type="submit" disabled={loading}
+                className="w-full py-2.5 text-sm font-bold rounded-lg text-white transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: 'var(--color-coral)' }}>
+                {loading ? 'Creating...' : 'Create account'}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

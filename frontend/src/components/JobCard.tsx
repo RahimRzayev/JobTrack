@@ -34,11 +34,11 @@ export default function JobCard({ job, onUpdate, onDelete, compact = false }: Jo
 
   return (
     <>
-      <div className="studio-card p-5 h-full flex flex-col">
+      <div className={`studio-card flex flex-col ${compact ? 'p-3.5' : 'p-5 h-full'}`} style={compact ? { minHeight: '100px' } : undefined}>
         {/* Header — fixed layout: title + company left, badges right */}
-        <div className="flex justify-between items-start gap-3" style={{ minHeight: compact ? '48px' : undefined }}>
+        <div className="flex justify-between items-start gap-3" style={{ minHeight: compact ? undefined : undefined }}>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold leading-snug truncate" style={{ color: 'var(--color-ink)' }} title={job.position}>
+            <h3 className={`font-bold leading-snug truncate ${compact ? 'text-xs' : 'text-sm'}`} style={{ color: 'var(--color-ink)' }} title={job.position}>
               {job.position}
             </h3>
             <p className="text-xs font-medium mt-0.5 truncate" style={{ color: 'var(--color-coral)' }}>
@@ -46,21 +46,22 @@ export default function JobCard({ job, onUpdate, onDelete, compact = false }: Jo
             </p>
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            <span className="studio-badge capitalize" style={{ backgroundColor: s.bg, color: s.color }}>
-              {job.status_display || job.status}
-            </span>
+            {!compact && (
+              <span className="studio-badge capitalize" style={{ backgroundColor: s.bg, color: s.color }}>
+                {job.status_display || job.status}
+              </span>
+            )}
             {job.match_score !== null && (
               <span className={`score-badge ${getScoreClass(job.match_score)}`}>
-                {job.match_score}% Match
+                {job.match_score}%{!compact && ' Match'}
               </span>
             )}
           </div>
         </div>
 
-        {/* Meta — FIXED height so all cards are the same regardless of content */}
+        {/* Meta */}
         <div
-          className="mt-2 space-y-1 flex-1 overflow-hidden"
-          style={{ minHeight: compact ? '66px' : undefined }}
+          className={`space-y-1 overflow-hidden ${compact ? 'mt-1.5' : 'mt-2 flex-1'}`}
         >
           {job.location && (
             <div className="flex items-center gap-1.5 text-xs truncate" style={{ color: 'var(--color-slate)' }}>
@@ -71,7 +72,7 @@ export default function JobCard({ job, onUpdate, onDelete, compact = false }: Jo
               <span className="truncate">{job.location}</span>
             </div>
           )}
-          {job.deadline && (
+          {!compact && job.deadline && (
             <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--color-slate)' }}>
               <svg className="w-3 h-3 flex-shrink-0" style={{ color: 'var(--color-stone)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -79,7 +80,7 @@ export default function JobCard({ job, onUpdate, onDelete, compact = false }: Jo
               <span>{new Date(job.deadline).toLocaleDateString()}</span>
             </div>
           )}
-          {(job.interview_datetime || job.status === 'interviewing') && (
+          {(job.interview_datetime || (!compact ? job.status === 'interviewing' : false)) && (
             <button 
               onClick={() => setIsScheduleModalOpen(true)}
               className="flex items-center gap-1.5 text-xs hover:underline text-left" 
@@ -97,38 +98,40 @@ export default function JobCard({ job, onUpdate, onDelete, compact = false }: Jo
           )}
         </div>
 
-        {/* Actions — always at the bottom */}
-        <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-sand)' }}>
-          {/* Row 1: AI actions */}
-          <div className="flex gap-2">
-            <button onClick={() => setIsMatchModalOpen(true)} className="studio-btn primary flex-1" style={{ fontSize: '11px', padding: '6px 8px' }}>
-              Scan Match
-            </button>
-            <button onClick={() => setIsCoverModalOpen(true)} className="studio-btn secondary flex-1" style={{ fontSize: '11px', padding: '6px 8px' }}>
-              Cover Letter
-            </button>
-          </div>
-          {/* Row 2: Link + Delete */}
-          {(job.url || onDelete) && (
-            <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: '1px dashed var(--color-sand)' }}>
+        {/* Actions — hidden in compact/Kanban mode */}
+        {!compact && (
+          <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-sand)' }}>
+            <div className="flex gap-2">
+              <button onClick={() => setIsMatchModalOpen(true)} className="studio-btn primary flex-1" style={{ fontSize: '11px', padding: '6px 8px' }}>
+                Scan Match
+              </button>
+              <button onClick={() => setIsCoverModalOpen(true)} className="studio-btn secondary flex-1" style={{ fontSize: '11px', padding: '6px 8px' }}>
+                Cover Letter
+              </button>
+            </div>
+            <div className="flex items-center justify-between mt-2.5">
               <div>
                 {job.url && (
                   <a href={job.url} target="_blank" rel="noopener noreferrer"
-                    className="studio-btn ghost" style={{ fontSize: '11px', padding: '3px 8px' }}>
+                    className="text-xs font-medium hover:underline" style={{ color: 'var(--color-teal)' }}>
                     View Posting ↗
                   </a>
                 )}
               </div>
               <div>
                 {onDelete && (
-                  <button onClick={() => onDelete(job.id)} className="studio-btn danger" style={{ fontSize: '11px', padding: '3px 8px' }}>
+                  <button onClick={() => onDelete(job.id)}
+                    className="text-xs font-medium hover:underline transition-colors"
+                    style={{ color: 'var(--color-stone)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-coral)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-stone)'; }}>
                     Delete
                   </button>
                 )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <MatchScoreModal

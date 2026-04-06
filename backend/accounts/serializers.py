@@ -8,12 +8,22 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     """Serializer for user registration."""
 
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = ('email', 'first_name', 'last_name', 'password', 'password_confirm')
+
+    def validate_email(self, value):
+        existing = User.objects.filter(email__iexact=value).first()
+        if existing:
+            if not existing.is_verified:
+                existing.delete()
+            else:
+                raise serializers.ValidationError('A user with this email already exists.')
+        return value
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:

@@ -104,7 +104,7 @@ export default function KanbanPage() {
   return (
     <div className="mx-auto px-4 py-8 mb-[100px] max-w-full overflow-x-hidden">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold" style={{ color: 'var(--color-ink)' }}>Kanban Board</h2>
+        <h2 className="text-2xl font-black" style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-display)' }}>Kanban Board</h2>
         <p className="mt-1 text-sm" style={{ color: 'var(--color-slate)' }}>
           Drag and drop applications to update their status.
         </p>
