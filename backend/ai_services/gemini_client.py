@@ -58,41 +58,51 @@ class GeminiClient:
             )
         try:
             self._client = genai.Client(api_key=api_key)
-            logger.info("Successfully initialized Gemini AI client (gemini-2.5-flash)")
+            logger.info("Successfully initialized Gemini AI client")
         except Exception as e:
             cls = type(self)
             cls._instance = None
             raise
 
-    @with_timeout(timeout_seconds=30)
-    def generate_content(self, prompt: str, system_instruction: str = None) -> str:
+    def generate_content(self, prompt: str, system_instruction: str = None, model: str = 'gemini-2.5-flash') -> str:
         """Generate and return text response from Gemini with timeout."""
         if not self._client:
             raise RuntimeError("Gemini client is not initialized.")
 
-        try:
+        timeout = 45 if 'pro' in model else 30
+
+        @with_timeout(timeout_seconds=timeout)
+        def _call():
             full_prompt = prompt
             if system_instruction:
                 full_prompt = f"SYSTEM INSTRUCTION: {system_instruction}\n\nUSER PROMPT: {prompt}"
 
             response = self._client.models.generate_content(
-                model='gemini-2.5-flash',
+                model=model,
                 contents=full_prompt,
                 config={'temperature': 0},
             )
             return response.text
+
+        try:
+            return _call()
         except TimeoutError:
-            logger.error("Gemini API request timed out after 30 seconds")
+            logger.error(f"Gemini API request timed out ({model}, {timeout}s)")
             raise
         except Exception as e:
-            logger.error(f"Error generating Gemini content: {e}")
+            logger.error(f"Error generating Gemini content ({model}): {e}")
             raise
 
 
-def call_gemini(prompt: str, system_instruction: str = None) -> str:
+# Model constants
+MODEL_FLASH = 'gemini-2.5-flash'
+MODEL_PRO = 'gemini-2.5-pro'
+
+
+def call_gemini(prompt: str, system_instruction: str = None, model: str = MODEL_FLASH) -> str:
     """
     Helper function to get a response from Gemini.
     Uses the GeminiClient singleton under the hood.
     """
     client = GeminiClient()
-    return client.generate_content(prompt, system_instruction)
+    return client.generate_content(prompt, system_instruction, model=model)

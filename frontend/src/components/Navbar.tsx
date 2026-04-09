@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Cpu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const NAV_ITEMS = [
@@ -28,16 +29,9 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-2.5 group">
-              <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black text-white"
-                style={{ backgroundColor: 'var(--color-coral)' }}>
-                JT
-              </span>
+              <Cpu className="w-6 h-6" style={{ color: 'var(--color-coral)' }} />
               <span className="text-lg font-bold hidden sm:block" style={{ color: 'var(--color-ink)' }}>
-                JobTrack
-              </span>
-              <span className="text-[10px] font-bold rounded px-1.5 py-0.5 hidden sm:block"
-                style={{ backgroundColor: 'var(--color-cream-d)', color: 'var(--color-slate)' }}>
-                AI
+                JobTrack <span style={{ color: 'var(--color-coral)' }}>AI</span>
               </span>
             </Link>
 

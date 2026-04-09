@@ -1,24 +1,125 @@
 # JobTrack AI
 
-JobTrack AI is a full-stack, AI-powered job application tracking system designed for university students and recent graduates. It helps you manage your job search pipeline, schedule interviews, and uses Google Vertex AI to automatically score your resume against job descriptions and generate tailored cover letters.
+**JobTrack AI** is a full-stack, AI-powered job application tracking system designed for university students and recent graduates. It helps you manage your job search pipeline, schedule interviews, and leverages Google Gemini AI to automatically score your resume against job descriptions and generate tailored cover letters.
+
+---
+
+## System Architecture
+
+```
+┌────────────────────┐         ┌────────────────────────────┐
+│   React Frontend   │  HTTP   │     Django REST Backend     │
+│   (Vite + TS)      │◄───────►│     (DRF + SimpleJWT)      │
+│   Port 5173        │  JSON   │     Port 8000               │
+└────────────────────┘         └──────┬──────┬──────┬────────┘
+                                      │      │      │
+                               ┌──────▼──┐ ┌─▼────┐ │
+                               │PostgreSQL│ │Cache │ │
+                               │ (DB)     │ │(File)│ │
+                               └─────────┘ └──────┘ │
+                                                     │
+                          ┌──────────────────────────┼──────────────┐
+                          │                          │              │
+                   ┌──────▼──────┐          ┌───────▼────┐  ┌─────▼──────┐
+                   │ Google      │          │ Google     │  │ SMTP Email │
+                   │ Gemini API  │          │ Calendar   │  │ Service    │
+                   │ (AI)        │          │ OAuth 2.0  │  │            │
+                   └─────────────┘          └────────────┘  └────────────┘
+```
+
+### Architecture Overview
+
+The application follows a **client-server architecture** with a clear separation between the React SPA frontend and the Django REST API backend. All communication happens over HTTP using JSON payloads with JWT-based authentication.
+
+- **Frontend (React SPA)**: Single-page application handling routing, state management, and UI rendering. Communicates with the backend via Axios with automatic token refresh.
+- **Backend (Django REST Framework)**: Stateless API server providing CRUD operations, authentication, AI integration, and calendar scheduling. Uses file-based caching for email verification codes.
+- **Database (PostgreSQL)**: Stores users, profiles, job applications, and calendar tokens.
+- **External Services**: Google Gemini API for AI features, Google Calendar API for interview scheduling, SMTP for email verification.
+
+---
 
 ## Features
 
-- **Authentication**: Secure email-based JWT authentication.
-- **Kanban Board**: Interactive drag-and-drop board for tracking application stages.
-- **AI Match Scoring**: Compare your resume against job requirements using Gemini 1.5.
-- **AI Cover Letter Architect**: Generate professional or friendly cover letters tailored to each role.
-- **Calendar Integration**: Instantly schedule interviews and add them to Google Calendar.
-- **Analytics Dashboard**: Visualize your application velocity and pipeline health.
+- **Email Authentication**: Secure email-based registration with 6-digit verification codes, JWT access/refresh tokens.
+- **Job Tracking**: Full CRUD for job applications with status pipeline (Wishlist → Applied → Interviewing → Offer / Rejected).
+- **Kanban Board**: Interactive drag-and-drop board for visualizing application stages.
+- **Job URL Scraping**: Paste a job listing URL to auto-extract company, position, location, and description.
+- **AI Match Scoring**: Upload your CV and let Gemini AI score (0–100) how well you match a job, with strengths and gaps analysis.
+- **AI Cover Letter Generator**: Generate tailored cover letters in formal or friendly tone using Gemini 2.5 Pro.
+- **Google Calendar Integration**: Schedule interviews with per-user OAuth consent and create Google Calendar events.
+- **Analytics Dashboard**: Visualize application velocity, status distribution, and pipeline health with interactive charts.
+- **Email Verification**: Professional HTML verification emails with cooldown timer for resend.
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Recharts, `hello-pangea/dnd`
-- **Backend**: Django, Django REST Framework, PostgreSQL, SimpleJWT
-- **AI Services**: Google Cloud Vertex AI (Gemini 1.5 Flash)
-- **APIs**: Google Calendar API
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite, TypeScript, Tailwind CSS, Recharts, `@hello-pangea/dnd` |
+| **Backend** | Django 6, Django REST Framework, SimpleJWT |
+| **Database** | PostgreSQL |
+| **AI** | Google Gemini API (`gemini-2.5-flash` for scoring, `gemini-2.5-pro` for cover letters) |
+| **Calendar** | Google Calendar API (OAuth 2.0 per-user consent) |
+| **Email** | SMTP (Gmail) with HTML templates, console fallback for development |
+| **Containerization** | Docker Compose (PostgreSQL) |
+| **Version Control** | Git / GitHub |
+
+---
+
+## Data Model
+
+```
+┌──────────────────────┐       ┌──────────────────────────────┐
+│        User          │       │       JobApplication          │
+├──────────────────────┤       ├──────────────────────────────┤
+│ id (PK)              │       │ id (PK)                      │
+│ email (unique)       │1    * │ user_id (FK → User)          │
+│ first_name           │───────│ company                      │
+│ last_name            │       │ position                     │
+│ password (hashed)    │       │ url                          │
+│ is_verified          │       │ location                     │
+│ is_active            │       │ status (enum)                │
+│ is_staff             │       │ description                  │
+│ date_joined          │       │ notes                        │
+└──────────┬───────────┘       │ deadline                     │
+           │ 1:1                │ date_applied                 │
+┌──────────▼───────────┐       │ match_score                  │
+│     UserProfile      │       │ calendar_event_id            │
+├──────────────────────┤       │ interview_datetime           │
+│ id (PK)              │       │ created_at                   │
+│ user_id (FK → User)  │       │ updated_at                   │
+│ cv_pdf (file)        │       └──────────────────────────────┘
+│ google_access_token  │
+│ google_refresh_token │       Status Enum:
+│ updated_at           │       wishlist | applied | interviewing
+└──────────────────────┘       offer | rejected
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register/` | Register a new user |
+| POST | `/api/auth/login/` | Login and receive JWT tokens |
+| POST | `/api/auth/verify-email/` | Verify email with 6-digit code |
+| POST | `/api/auth/resend-code/` | Resend verification code |
+| POST | `/api/auth/token/refresh/` | Refresh JWT access token |
+| GET | `/api/auth/profile/` | Get user profile |
+| PATCH | `/api/auth/profile/` | Update profile / upload CV |
+| GET | `/api/jobs/` | List user's job applications |
+| POST | `/api/jobs/` | Create a job application |
+| GET/PUT/DELETE | `/api/jobs/<id>/` | Retrieve / update / delete a job |
+| POST | `/api/jobs/scrape/` | Scrape job details from URL |
+| POST | `/api/ai/match-score/` | AI match score analysis |
+| POST | `/api/ai/cover-letter/` | AI cover letter generation |
+| GET | `/api/calendar/auth-url/` | Get Google Calendar OAuth URL |
+| GET | `/api/calendar/callback/` | OAuth callback handler |
+| POST | `/api/calendar/schedule/` | Schedule interview on Google Calendar |
+| DELETE | `/api/calendar/remove/<id>/` | Remove a scheduled interview |
+| GET | `/api/analytics/dashboard/` | Dashboard analytics data |
 
 ---
 
@@ -26,102 +127,88 @@ JobTrack AI is a full-stack, AI-powered job application tracking system designed
 
 - **Python 3.10+**
 - **Node.js 18+**
-- **PostgreSQL**: Running locally or via the provided `docker-compose.yml`
-- **Google Cloud Platform (GCP) Project** with:
-  - Vertex AI API enabled (for AI features)
-  - Google Calendar API enabled, with OAuth 2.0 Credentials configured (Web application type)
+- **PostgreSQL** — running locally or via `docker-compose up -d`
+- **Gemini API Key** — free at [Google AI Studio](https://aistudio.google.com/apikey)
+- *(Optional)* Google Calendar OAuth credentials for interview scheduling
+- *(Optional)* SMTP credentials (Gmail) for email verification
 
 ---
 
 ## Setup Instructions
 
-### 1. Database Setup (Optional if you have Local Postgres)
+### 1. Database Setup
 
-If you don't have PostgreSQL installed locally, you can use the provided Docker Compose file:
+If you don't have PostgreSQL installed locally, use the provided Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
+Or create the database manually:
+
+```sql
+CREATE DATABASE jobtrack;
+CREATE USER jobtrack WITH PASSWORD 'jobtrack';
+ALTER ROLE jobtrack SET client_encoding TO 'utf8';
+ALTER ROLE jobtrack SET default_transaction_isolation TO 'read committed';
+ALTER ROLE jobtrack SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE jobtrack TO jobtrack;
+ALTER DATABASE jobtrack OWNER TO jobtrack;
+```
+
 ### 2. Backend Setup
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Configure Environment Variables:
-   - Copy the `.env.example` from the root directory to `backend/.env`.
-   - Update the database credentials (`DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`). Default is `jobtrack` user and password on port `5432`.
-   - Add your Google Cloud GCP Region, Project ID, and OAuth keys.
-5. Create logic required for database permissions if starting fresh:
-   ```sql
-   CREATE DATABASE jobtrack;
-   CREATE USER jobtrack WITH PASSWORD 'jobtrack';
-   ALTER ROLE jobtrack SET client_encoding TO 'utf8';
-   ALTER ROLE jobtrack SET default_transaction_isolation TO 'read committed';
-   ALTER ROLE jobtrack SET timezone TO 'UTC';
-   GRANT ALL PRIVILEGES ON DATABASE jobtrack TO jobtrack;
-   -- Important for Django migrations on Postgres 15+
-   ALTER DATABASE jobtrack OWNER TO jobtrack;
-   ```
-6. Run migrations:
-   ```bash
-   python manage.py migrate
-   ```
-7. Seed the database with sample data (creates a demo account `demo@jobtrack.ai` / `demo1234`):
-   ```bash
-   python manage.py seed_jobs
-   ```
-8. Start the development server:
-   ```bash
-   python manage.py runserver
-   ```
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Configure environment variables:
+```bash
+cp ../.env.example .env
+# Edit .env — at minimum set GEMINI_API_KEY
+```
+
+Run migrations and start the server:
+```bash
+python manage.py migrate
+python manage.py runserver
+```
 
 ### 3. Frontend Setup
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Access the application at `http://localhost:5173`.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Access the application at **http://localhost:5173**.
 
 ---
 
-## Using the AI Features
+## Environment Variables
 
-To use the Match Score and Cover Letter features, you must:
-1. Set up a GCP project and enable the Vertex AI API.
-2. Provide `GCP_PROJECT_ID` and `GCP_REGION` in your backend `.env` file.
-3. Authenticate your local environment using the gcloud CLI:
-   ```bash
-   gcloud auth application-default login
-   ```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SECRET_KEY` | Yes | Django secret key |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | Yes | PostgreSQL credentials |
+| `GEMINI_API_KEY` | Yes | Google Gemini API key for AI features |
+| `GOOGLE_CALENDAR_CLIENT_ID` | Optional | Google Calendar OAuth client ID |
+| `GOOGLE_CALENDAR_CLIENT_SECRET` | Optional | Google Calendar OAuth client secret |
+| `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` | Optional | SMTP credentials for email verification |
 
-## Using the Calendar Integration
+---
 
-To use the Google Calendar scheduling feature:
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
-2. Enable the **Google Calendar API**.
-3. Create **OAuth 2.0 Client IDs** (Application type: Desktop App or Web application if configuring redirect URIs).
-4. Download the credentials JSON.
-5. Provide the absolute path to this file in your backend `.env` under `GOOGLE_OAUTH_CREDENTIALS_FILE`.
+## Running Tests
+
+```bash
+cd backend
+source venv/bin/activate
+python manage.py test
+```
 
 ---
 
@@ -129,21 +216,27 @@ To use the Google Calendar scheduling feature:
 
 ```text
 JobTrack/
-├── .env.example
-├── docker-compose.yml
-├──/backend/
-│  ├── /accounts/             # Custom JWT User Auth
-│  ├── /ai_services/          # Vertex AI Endpoints
-│  ├── /calendar_integration/ # Calendar Endpoints
-│  ├── /config/               # Django Settings
-│  └── /jobs/                 # Jobs CRUD & Analytics
+├── .env.example              # Environment variable template
+├── docker-compose.yml        # PostgreSQL container config
+├── README.md                 # This file
 │
-└──/frontend/
-   ├── /src/
-   │   ├── /components/       # Reusable UI (JobCard, Modals)
-   │   ├── /context/          # Auth Context Layer
-   │   ├── /pages/            # Next-level views (Dashboard, Kanban)
-   │   ├── /services/         # Axios Interceptors & API definitions
-   │   └── /types/            # TS Interfaces
-   └── vite.config.ts
+├── backend/
+│   ├── accounts/             # User auth, email verification, profiles
+│   ├── jobs/                 # Job CRUD, URL scraping, analytics
+│   ├── ai_services/          # Gemini AI match scoring & cover letters
+│   ├── calendar_integration/ # Google Calendar OAuth & scheduling
+│   ├── config/               # Django settings, URL routing
+│   ├── manage.py
+│   └── requirements.txt
+│
+└── frontend/
+    ├── src/
+    │   ├── components/       # Reusable UI (Navbar, JobCard, Modals)
+    │   ├── context/          # Auth context with JWT token management
+    │   ├── pages/            # Page views (Dashboard, Kanban, Landing)
+    │   ├── services/         # Axios API client with interceptors
+    │   └── types/            # TypeScript interfaces
+    ├── index.html
+    ├── vite.config.ts
+    └── package.json
 ```

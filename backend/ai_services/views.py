@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import MatchScoreSerializer, CoverLetterSerializer
-from .gemini_client import call_gemini
+from .gemini_client import call_gemini, MODEL_PRO
 from .pdf_extractor import extract_text_from_pdf
 
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ INSTRUCTIONS:
 - Make it unique and compelling to the specific company and role."""
 
         try:
-            cover_letter = call_gemini(prompt)
+            cover_letter = call_gemini(prompt, model=MODEL_PRO)
             return Response({'cover_letter': cover_letter.strip()})
 
         except TimeoutError:

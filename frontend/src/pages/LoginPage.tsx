@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Cpu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
@@ -37,9 +38,10 @@ export default function LoginPage() {
       <div className="w-full max-w-[420px] animate-fade-in-up">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2.5 mb-8 hover:opacity-90 transition-opacity">
-          <span className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-black text-white"
-            style={{ backgroundColor: 'var(--color-coral)' }}>JT</span>
-          <span className="text-xl font-bold" style={{ color: 'var(--color-ink)' }}>JobTrack AI</span>
+          <Cpu className="w-7 h-7" style={{ color: '#D95C3B' }} />
+          <span className="text-xl font-bold" style={{ color: '#111827' }}>
+            JobTrack <span style={{ color: '#D95C3B' }}>AI</span>
+          </span>
         </Link>
         
         <div className="rounded-xl overflow-hidden flex"
@@ -79,12 +81,6 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 pt-5 text-center" style={{ borderTop: '1px solid var(--color-sand)' }}>
-              <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-slate)' }}>Try with demo account</p>
-              <p className="text-xs font-mono" style={{ color: 'var(--color-stone)' }}>
-                demo@jobtrack.ai / demo1234
-              </p>
-            </div>
           </div>
         </div>
       </div>
