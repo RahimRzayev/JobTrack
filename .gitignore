@@ -58,4 +58,7 @@ Team Project Plan.pdf
 
 # Generated files
 backend/django_cache/
+
+# Application logs
+*.log
 backend/media/cvs/
